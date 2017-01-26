@@ -1,0 +1,92 @@
+{
+    "User": "GMW",
+    "Valid_Since": "2017-01-17 08:00:00",
+    "Modified_At": "2018-01-18 14:22:00",
+    "Calib_File_Version": 1,
+    "Last_Hot_Cold_Calib_From": "NaN",
+    "FrontEnd_ConfigFile": "HJECE-FrontEnd_170117-65609",
+    "BackEnd_ConfigFile": "HJECE-BackEnd_170117-65609",
+    "General_Remarks": "Relative Calibration",
+    "Data": {
+        "Channel01": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel02": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel03": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel04": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel05": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel06": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel07": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel08": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel09": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel10": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel11": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel12": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel13": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel14": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel15": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        },
+        "Channel16": {
+            "Factor": 1.0,
+            "Error": 0.0,
+            "Remark": "UnCal"
+        }
+    }
+}

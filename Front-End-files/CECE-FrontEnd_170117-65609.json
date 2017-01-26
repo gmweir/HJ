@@ -1,0 +1,19 @@
+{
+    "User": "GMW",
+    "Valid_Since": "2017-01-17 08:00:00",
+    "Modified_At": "2018-01-18 14:22:00",
+    "Active": ["CECE-RF"],
+    "General_Remarks": "Changed before HJ Shot: ",
+    "CECE-RF": {
+        "PORT": 11.5,
+        "Antenna_CartCoords_m": [0.0, 0.0, 0.0],
+        "Target_CartCoords_m": [0.0, 0.0, 0.0],
+        "Antenna_FocLength_m": [ 1, 1],
+        "Remark": "VCO(x4)-15.075 GHz",
+        "SubBand": [ {
+            "LO": 60.300,
+            "SIDEBAND": "UPPER",
+            "IFBandwidth": [2.000, 18.000],
+            "FrontEnd_RFAtt_dB": 0.0,
+            "FrontEnd_RFGain_dB": 40.0 } ] }
+}

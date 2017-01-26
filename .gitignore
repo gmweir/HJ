@@ -1,0 +1,6 @@
+bin
+__pycache__
+*/__pycache__/
+*ssh*
+*/*ssh*/*
+*spyder_crash*

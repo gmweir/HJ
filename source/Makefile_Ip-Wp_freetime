@@ -1,0 +1,28 @@
+# Parameters.
+
+PROGRAM = ../bin/Ip-Wp_freetime.out
+OBJECTS	  = Ip-Wp_freetime.o
+MOD_FILES =
+FC = ifort
+
+# Compiler flags.
+
+CFLAGS +=
+CPPFLAGS +=
+LDFLAGS += 
+#CPPFLAGS += 
+#LDFLAGS += 
+LDLIBS += -lm -lfdata
+
+# Standard targets.
+
+.SUFFIXES: .o .f
+.f.o :
+	${FC} -c $<
+
+${PROGRAM}: ${OBJECTS}
+	${FC} ${LINK} -o ${PROGRAM} ${OBJECTS} ${LDLIBS}
+
+.PHONY: CLEAN
+CLEAN:
+	${RM} ${OBJECTS}
