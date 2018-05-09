@@ -11,11 +11,13 @@ import os as _os
 import matplotlib.pyplot as _plt
 #import scipy.signal.correlate as xcorr
 
-from pybaseutils.fft_analysis import fftanal
+#from pybaseutils.fft_analysis import fftanal
+from FFT import fft_analysis as fftanal
 from pybaseutils.plt_utils import savefig
 
-datafolder = _os.path.abspath(_os.path.join('..', 'bin'))
+#datafolder = _os.path.abspath(_os.path.join('..', 'bin'))
 #datafolder = _os.path.join('/homea','weir','bin')
+datafolder = _os.path.abspath( _os.path.join('G:/', 'ownCloud','HeliotronJ','DATA' ) )
 print(datafolder)
 
 cmPerGHz = 1
@@ -24,12 +26,14 @@ cmPerGHz = 1
 # scantitl += '_50to400'
 #scantitl += '_400to500'
 
+fils = ['CECE.65625','CECE.65626']
+freqs = [68.3,       68.0]
 
-fils = ['CECE.65625','CECE.65626','CECE.65627','CECE.65628','CECE.65629']
-freqs = [68.3,       68.0,        68.2,        68.1,         68.1]
-
-fils.extend(['CECE.65630','CECE.65631','CECE.65632','CECE.65633','CECE.65634'])
-freqs.extend([68.15,      68.05,       67.95,        67.90,      68.125])
+#fils = ['CECE.65625','CECE.65626','CECE.65627','CECE.65628','CECE.65629']
+#freqs = [68.3,       68.0,        68.2,        68.1,         68.1]
+#
+#fils.extend(['CECE.65630','CECE.65631','CECE.65632','CECE.65633','CECE.65634'])
+#freqs.extend([68.15,      68.05,       67.95,        67.90,      68.125])
 
 intb = [15e3, 500e3]  # original
 #intb = [50e3, 400e3]  # broadband fluctuations
