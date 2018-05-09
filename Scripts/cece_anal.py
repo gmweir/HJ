@@ -111,19 +111,22 @@ Fs = 1e6
 cohtitl = 'CECE_feb072018'
 #titls.extend( [cohtitl + '_fix1a'] )
 #titls.extend( [cohtitl + '_fix1b'] )
-titls.extend( [cohtitl + '_fix2a'] )
-titls.extend( [cohtitl + '_fix2b'] )
+#titls.extend( [cohtitl + '_fix2a'] )   # including freq scans
+#titls.extend( [cohtitl + '_fix2b'] )   # including freq scans
+titls.extend( [cohtitl + '_fixed2a'] )   # no freq scans
+titls.extend( [cohtitl + '_fixed2b'] )   # no freq scans
 clrs = ['b', 'g', 'm', 'r']
 nb = [0.150, 0.170]
-tb = [0.250, 0.350]
+#tb = [0.250, 0.350]
 #tb = [0.220, 0.310]
+tb = [0.290, 0.315]
 
-f_hpf = 1e3
+f_hpf = 360
 Nw = _np.int((tb[1]-tb[0]) * _np.max((f_hpf,10e3)))
 #Nw = 500
 #Nwb = _np.int((nb[1]-nb[0]) * f_hpf)
 #intb = [1e3, 20e3]  # low frequency fluctuations
-intb = [1e3, 50e3] # big peak
+intb = [_np.max((f_hpf,10e3)), 300e3] # big peak
 
 # =============== #
 
@@ -133,6 +136,8 @@ Bif = 0.180e9   # [GHz], channel bandwidth
 # =============== #
 # =============== #
 
+ylimsC = [-0.05, 1e-10]
+ylimsP = [0.0, 1e-10]
 f0 = False
 # ===== #
 if f0:
@@ -256,10 +261,10 @@ _a1Corr.set_title('Cross-Correlation: 68.0 and 68.3 GHz')
 
 _hdat = _plt.figure('RawData')
 _a211 = _plt.subplot(2,1,1)
-_a211.set_xlabel('t [ms]')
+#_a211.set_xlabel('t [ms]')
 _a211.set_ylabel('RF [ms]')
 _a211.set_title('CECE Signals')
-_a212 = _plt.subplot(2,1,2)
+_a212 = _plt.subplot(2,1,2, sharex=_a211, sharey=_a211)
 _a212.set_xlabel('t [ms]')
 _a212.set_ylabel('IF [ms]')
     
@@ -341,15 +346,26 @@ for scantitl in titls:
 
         fils.extend(['CECE.69921', 'CECE.69922', 'CECE.69923'])
         freqs.extend([     64.140,       64.100,       64.050])        
-        txtstr = '8 GHz IF'                             
+        txtstr = '5:3, 8 GHz IF'                             
 
+    elif scantitl == 'CECE_feb072018_fixed2a':
+        fils = ['CECE.69916', 'CECE.69917']
+        freqs = [     64.380,       64.300]
+
+        txtstr = '5:3, 8 GHz IF'                             
+        
     elif scantitl == 'CECE_feb072018_fix2b':
         fils = ['CECE.69924', 'CECE.69925', 'CECE.69926', 'CECE.69927', 'CECE.69928']
         freqs = [     60.380,       60.300,       60.220,       60.140,       60.460]
 
-        fils.extend(['CECE.69929', 'CECE.69930', 'CECE.69931', 'CECE.69932'])
-        freqs.extend([     60.060,       60.300])        
-        txtstr = '4 GHz IF'                             
+        fils.extend(['CECE.69929', 'CECE.69930', 'CECE.69931'])
+        freqs.extend([     60.060,       60.300,       60.300])        
+        txtstr = '5:3, 4 GHz IF'                             
+
+    elif scantitl == 'CECE_feb072018_fixed2b':
+        fils = ['CECE.69925', 'CECE.69930', 'CECE.69931']
+        freqs = [60.300,       60.300,       60.300]
+        txtstr = '5:3, 4 GHz IF'                             
     # endif
 #    ylims2 = (0, 0.4)
 #    ylims3 = (-_np.pi, _np.pi)
@@ -444,7 +460,7 @@ for scantitl in titls:
 #        _a212.plot(1e3*tt, tmpIF, '-', color=clrs[ii])
         _a211.plot(1e3*tt, tmpRF, '-')
         _a212.plot(1e3*tt, tmpIF, '-')
-        
+        _a211.set_xlim((270, 320))
         # =================== #
        
         if f0:
@@ -462,7 +478,9 @@ for scantitl in titls:
             
 #        NRfft = _fft.fftanal(tt, tmpRF, tmpIF, tbounds=nb, Navr=Nwb)      
 #        IRfft = _fft.fftanal(tt, tmpRF, tmpIF, tbounds=tb, Navr=Nw)      
-        IRfft = _fft.fftanal(tt, tmpRF, tmpIF, tbounds=tb, Navr=2*Nw, windowoverlap=0.5)      
+        IRfft = _fft.fftanal(tt, tmpRF, tmpIF, tbounds=tb, Navr=Nw, windowoverlap=0.0)      
+#        IRfft = _fft.fftanal(tt, tmpRF, tmpIF, tbounds=tb, Navr=2*Nw, windowoverlap=0.5)      
+#        IRfft = _fft.fftanal(tt, tmpRF, tmpIF, tbounds=tb, Navr=4*Nw, windowoverlap=0.75)      
         
         if ii == 0:
 #            Nxy_avg = _np.zeros((len(NRfft.freq),), dtype=_np.complex64); Nxy_var = _np.zeros_like(Nxy_avg)            
@@ -482,7 +500,7 @@ for scantitl in titls:
         
         freq = IRfft.freq
         i0 = int( _np.floor( (intb[0]-freq[0])/(freq[1]-freq[0])) )
-        i1 = int( _np.floor( (intb[1]-freq[0])/(freq[1]-freq[0])) )   
+        i1 = int( _np.round( (intb[1]-freq[0])/(freq[1]-freq[0])) )   
         if i0<=0:          i0 = 0        # end if
         if i1>=len(freq):  i1 = -1       # end if
         
@@ -570,11 +588,15 @@ for scantitl in titls:
                        1e6*(_np.abs(Pxy_avg)+_np.sqrt(_np.abs(Pxy_var))), 
                        facecolor=clrs[jj], alpha=0.15)
     ylims = msub1.get_ylim()
-    msub1.set_ylim( 0, ylims[1] ) 
+    ylimsP = [0.0, _np.max((ylims[1], ylimsP[1], 1.05*_np.max(1e6*(_np.abs(Pxy_avg)+_np.sqrt(_np.abs(Pxy_var))))))]   
+#    msub1.set_xlim((0, 235.0))
+#    msub1.set_ylim( -0.05, ylims[1] ) 
+    msub1.set_ylim( ylimsP[0], ylimsP[1] )     
+#    msub1.set_ylim( 0, ylims[1] ) 
 #    msub1.text(130, 1.6-jj*0.2, txtstr, color=clrs[jj])
 #    msub1.set_xlim((0, 235.0))
 #    msub1.set_ylim((0, 2.0))
-    msub1.set_ylim( -0.05, ylims[1] ) 
+#    msub1.set_ylim( -0.05, ylims[1] ) 
     
     # msub2.errorbar(1e-3*IRfft.freq, Cxy_avg, yerr=_np.sqrt(Cxy_var), fmt='-')        
     msub2.plot(1e-3*IRfft.freq, _np.abs(Cxy_avg), '-', lw=2, color=clrs[jj])        
@@ -583,9 +605,13 @@ for scantitl in titls:
                        _np.abs(Cxy_avg)+_np.sqrt(_np.abs(Cxy_var)), 
                        facecolor=clrs[jj], alpha=0.15)
     ylims = msub2.get_ylim()
+    ylimsC = [-0.05, _np.max((ylims[1], ylimsC[1], 1.05*_np.max(_np.abs(Cxy_avg)+_np.sqrt(_np.abs(Cxy_var)))))]   
 #    msub1.set_xlim((0, 235.0))
-    msub2.set_ylim( -0.05, ylims[1] ) 
-    msub2.text(130, 0.45-jj*0.075, txtstr, color=clrs[jj])
+#    msub2.set_ylim( -0.05, ylims[1] ) 
+    msub2.set_ylim( ylimsC[0], ylimsC[1] ) 
+#    msub2.text(130, 0.45-jj*0.075, txtstr, color=clrs[jj])
+    msub2.text(350, 0.75*ylimsC[1]-jj*ylimsC[1]/10, txtstr, color=clrs[jj])    
+    msub2.axhline(y=1.0/_np.sqrt(Nw), linestyle='--', linewidth=2, color='k')
     
     msub3.plot(1e-3*IRfft.freq, phxy_avg, '-')
 #    msub3.fill_between(1e-3*IRfft.freq, 
@@ -619,7 +645,8 @@ for scantitl in titls:
 
     _plt.figure(spectra_title)
     _hfig.sca(sub1)
-
+#    _hfig.tight_layout()
+    
     scantitl += '_%ito%iKHz'%(int(1e-3*intb[0]), int(1e-3*intb[1]))
     _pltut.savefig(_os.path.join(datafolder,scantitl), ext='png', close=False, 
             verbose=True, dotsperinch = 300, transparency = True)    
@@ -685,6 +712,14 @@ for scantitl in titls:
 # end shot lists
 
 print('Done with loop over lists')
+
+_plt.figure('RawData')
+_plt.sca(_a211)
+_pltut.savefig(_os.path.join(datafolder, cohtitl+'_rawsig'), ext='png', close=False, 
+        verbose=True, dotsperinch = 300, transparency = True)    
+_pltut.savefig(_os.path.join(datafolder, cohtitl+'_rawsig'), ext='eps', close=False, 
+        verbose=True, dotsperinch = 300, transparency = True)
+
 
 _plt.figure('Coherence Length')
 _plt.sca(_aCxy)
