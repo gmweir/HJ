@@ -1,0 +1,43 @@
+{
+    "User": "GMW",
+    "Valid_Since": "2017-01-30 15:00:00",
+    "Modified_At": "2017-01-30 15:00:00",
+    "Calib_File_Version": 1,
+    "FrontEnd_ConfigFile": "CECE-FrontEnd_170117-65609",
+    "BackEnd_ConfigFile": "CECE-BackEnd_170117-65609",
+    "General_Remarks": "Noise source calibration - 43 Hz square wave modulation",
+    "Data": {
+        "CECE-RF": {
+            "FactoreVV": [1.0],
+            "Variance": [0.0],
+            "Freq": [15.075],
+            "InputRFAttdB": [0.0],
+            "VidGain": [1.0],
+            "Remark": "TTL reference channel"
+        },
+        "CECE-IF": {
+            "FactoreVV": [1.0],
+            "Variance": [0.0],
+            "Freq": [12.000],
+            "InputRFAttdB": [-13.0],
+            "VidGain": [10.0],
+            "Remark": "-"
+        },
+        "CECE-RF2": {
+            "FactoreVV": [1.0],
+            "Variance": [0.0],
+            "Freq": [15.075],
+            "InputRFAttdB": [0.0],
+            "VidGainVV": [1.0],
+            "Remark": "+2.5dBm RF multiplier input"
+        },
+        "CECE-IF2": {
+            "FactoreVV": [1.0],
+            "Variance": [0.0],
+            "Freq": [12.000],
+            "InputRFAttdB": [-13.0],
+            "VidGainVV": [1.0],
+            "Remark": "-"
+        }
+    }
+}
