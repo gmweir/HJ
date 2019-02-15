@@ -1,0 +1,33 @@
+&INDATA
+  NFP = 4
+  EXTCUR(001) =  3.5600E+04 ! Helical Coil; 24 Turns (in model)
+  EXTCUR(002) =  4.4400E+05 ! Toroidal A; 20 Turns
+  EXTCUR(003) =  1.7658E+05 ! Toroidal B; 20 Turns
+  EXTCUR(004) = -4.2720E+05 ! Main Vertical 1 OV1; 4 Turns
+  EXTCUR(005) = -2.1360E+05 ! Main Vertical 2 OV2; 2 Turns
+  EXTCUR(006) = -1.0680E+05 ! Main Vertical 3 OV3; 1 Turn
+  EXTCUR(007) =  6.6240E+04 ! Aux. Vertical; 24 Turns
+  EXTCUR(008) =  3.6480E+05 ! Inner Vertical; 80 Turns
+
+/
+&FIELDLINES_INPUT
+  NR = 128
+  NZ = 128
+  NPHI = 64
+  RMIN = 0.50
+  RMAX = 1.75
+  ZMIN = -0.5
+  ZMAX = 0.5
+  PHIMIN = 0.0
+  PHIMAX = 1.5707963268E+00
+  MU = 0.0
+  R_START = 1.329 1.65
+  Z_START = 0.00 0.00
+  PHI_START = 40*0.00
+  PHI_END   = 40*6283.0
+  NPOINC    = 32
+  INT_TYPE  = 'LSODE'
+  FOLLOW_TOL = 1.0E-9
+/
+ &END
+
