@@ -4,7 +4,7 @@ __pycache__
 *ssh*
 */*ssh*/*
 *spyder_crash*
-*.nc
-mgrid*
-extcur*
-wout*
+# *.nc
+# mgrid*
+# extcur*
+# wout*
