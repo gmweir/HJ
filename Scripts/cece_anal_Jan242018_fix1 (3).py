@@ -33,10 +33,10 @@ cmPerGHz = 1
 freq_ref = 60.0   # [GHz]
 fils = ['CECE.69769','CECE.69770','CECE.69771','CECE.69772','CECE.69773','CECE.69777']
 freqs = [13.075,     13.075,      13.085,      13.095,      13.105,      13.08]
-
+freqs = [4.0*freq+8.0 for freq in freqs]
 #fils = ['CECE.69775']
 #freqs = [13.080]
-freqs = [4.0*freq+8.0 for freq in freqs]
+
 
 intb = [2e3, 120e3]  # original
 #intb = [50e3, 400e3]  # broadband fluctuations

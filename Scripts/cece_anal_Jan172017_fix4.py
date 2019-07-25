@@ -14,7 +14,7 @@ import matplotlib.pyplot as _plt
 from pybaseutils.fft_analysis import fftanal
 from pybaseutils.plt_utils import savefig
 
-datafolder = _os.path.abspath(_os.path.join('..', 'bin'))
+datafolder = _os.path.abspath(_os.path.join('..', 'Workshop'))
 #datafolder = _os.path.join('/homea','weir','bin')
 print(datafolder)
 
