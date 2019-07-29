@@ -43,10 +43,11 @@ intb = [15e3, 200e3]  # original
 #intb = [50e3, 400e3]  # broadband fluctuations
 # intb = [400e3, 465e3]  # high frequency mode
 
-tb=[0.15,0.27]
+tb=[0.15,1]
+sintest=True
 #tb=[0.3,0.39]
 #tb = [0.192, 0.370]
-f0=True
+f0=False
 if f0:
     Fs = 1e6
     #  Make a band rejection / Notch filter for MHD or electronic noise
@@ -63,24 +64,24 @@ if f0:
     freq = w*Fs/(2.0*_np.pi)    # Frequency axis
     
     # Plot the response of the filter
-    fig, ax = _plt.subplots(2,1, figsize=(8,6), sharex=True)
-    ax[0].plot(1e-3*freq, 20*_np.log10(_np.abs(h)), color='blue')
-    ax[0].set_title('Frequency Response of Notch filter (%4.1f KHz, Q=%i)'%(f0*1e-3, Q))
-    ax[0].set_ylabel('Amplitude [dB]')
-    xlims = [0, int(1e-3*Fs/2)]
-    ax[0].set_xlim(xlims)
-    ax[0].set_ylim([-25, 10])
-    ax[0].grid()
-    ax[1].plot(1e-3*freq, _np.unwrap(_np.angle(h))*180.0/_np.pi, color='green')
-    ax[1].set_ylabel('Angle [deg]', color='green')
-    ax[1].set_xlabel('Frequency [KHz]')
-    ax[1].set_xlim(xlims)
-    ax[1].set_yticks([-90, -60, -30, 0, 30, 60, 90])
-    ax[1].set_ylim([-90, 90])
-    ax[1].grid()
-    _plt.show()
+#    fig, ax = _plt.subplots(2,1, figsize=(8,6), sharex=True)
+#    ax[0].plot(1e-3*freq, 20*_np.log10(_np.abs(h)), color='blue')
+#    ax[0].set_title('Frequency Response of Notch filter (%4.1f KHz, Q=%i)'%(f0*1e-3, Q))
+#    ax[0].set_ylabel('Amplitude [dB]')
+#    xlims = [0, int(1e-3*Fs/2)]
+#    ax[0].set_xlim(xlims)
+#    ax[0].set_ylim([-25, 10])
+#    ax[0].grid()
+#    ax[1].plot(1e-3*freq, _np.unwrap(_np.angle(h))*180.0/_np.pi, color='green')
+#    ax[1].set_ylabel('Angle [deg]', color='green')
+#    ax[1].set_xlabel('Frequency [KHz]')
+#    ax[1].set_xlim(xlims)
+#    ax[1].set_yticks([-90, -60, -30, 0, 30, 60, 90])
+#    ax[1].set_ylim([-90, 90])
+#    ax[1].grid()
+#    _plt.show()
 
-fLPF=True
+fLPF=False
 if fLPF:
     fLPF = 2*intb[1]      # [Hz], frequency to reject
     Bvid = fLPF
@@ -95,22 +96,22 @@ if fLPF:
     freq = w*Fs/(2.0*_np.pi)    # Frequency axis
     
     # Plot the response of the filter
-    fig, ax = _plt.subplots(2,1, figsize=(8,6), sharex=True)
-    ax[0].plot(1e-3*freq, 20*_np.log10(_np.abs(h)), color='blue')
-    ax[0].set_title('Frequency Response of Low pass filter (%4.1f KHz order=%i)'%(f0*1e-3, lpf_order))
-    ax[0].set_ylabel('Amplitude [dB]')
-    xlims = [0, int(1e-3*Fs/2)]
-    ax[0].set_xlim(xlims)
-    ax[0].set_ylim([-25, 10])
-    ax[0].grid()
-    ax[1].plot(1e-3*freq, _np.unwrap(_np.angle(h))*180.0/_np.pi, color='green')
-    ax[1].set_ylabel('Angle [deg]', color='green')
-    ax[1].set_xlabel('Frequency [KHz]')
-    ax[1].set_xlim(xlims)
-    ax[1].set_yticks([-90, -60, -30, 0, 30, 60, 90])
-    ax[1].set_ylim([-90, 90])
-    ax[1].grid()
-    _plt.show()
+#    fig, ax = _plt.subplots(2,1, figsize=(8,6), sharex=True)
+#    ax[0].plot(1e-3*freq, 20*_np.log10(_np.abs(h)), color='blue')
+#    ax[0].set_title('Frequency Response of Low pass filter (%4.1f KHz order=%i)'%(f0*1e-3, lpf_order))
+#    ax[0].set_ylabel('Amplitude [dB]')
+#    xlims = [0, int(1e-3*Fs/2)]
+#    ax[0].set_xlim(xlims)
+#    ax[0].set_ylim([-25, 10])
+#    ax[0].grid()
+#    ax[1].plot(1e-3*freq, _np.unwrap(_np.angle(h))*180.0/_np.pi, color='green')
+#    ax[1].set_ylabel('Angle [deg]', color='green')
+#    ax[1].set_xlabel('Frequency [KHz]')
+#    ax[1].set_xlim(xlims)
+#    ax[1].set_yticks([-90, -60, -30, 0, 30, 60, 90])
+#    ax[1].set_ylim([-90, 90])
+#    ax[1].grid()
+#    _plt.show()
 
 hfig = _plt.figure()
 sub1 = _plt.subplot(4, 1, 1)
@@ -154,14 +155,30 @@ Pxy_var=0
 Pxx_var=0
 Pyy_var=0
 Corr_var=0
-for ii in range(nfils):
+for ii in range(1):
+    if sintest:
+        tb=[0,20.0]
+        df=10e3
+        n_s=4000001
+        _np.random.seed()
+        tt=_np.linspace(0,20.0*_np.pi,n_s)
+        fs=1/(((tt[len(tt)-1]-tt[0])/len(tt)))
+        tmpRF=0.05*_np.sin(2.0*_np.pi*(df)*tt)
+        delay=19*_np.pi/fs
+        #some delays make the peak disappear, cannot find logic to which ones...
+        tmpIF=0.05*_np.sin(2.0*_np.pi*(df)*(tt-delay))
+#        tmpIF=+_np.random.standard_normal( size=(tt.shape[0],) )
+        tmpIF += _np.random.uniform( low=-1, high=1, size=(tt.shape[0],) )
+        tt_tb=[_np.where(tt<=tb[0])[0][0],_np.where(tt>=tb[1])[0][0]]
     
-    filn = _os.path.abspath(_os.path.join(datafolder, fils[ii]))
-    print(filn)
-    tt, tmpRF, tmpIF = \
-        _np.loadtxt(filn, dtype=_np.float64, unpack=True, usecols=(0,1,2))
-    tt = 1e-3*tt
-    tt_tb=[_np.where(tt==tb[0])[0][0],_np.where(tt==tb[1])[0][0]]
+    if not sintest:
+        
+        filn = _os.path.abspath(_os.path.join(datafolder, fils[ii]))
+        print(filn)
+        tt, tmpRF, tmpIF = \
+            _np.loadtxt(filn, dtype=_np.float64, unpack=True, usecols=(0,1,2))
+        tt = 1e-3*tt
+        tt_tb=[_np.where(tt==tb[0])[0][0],_np.where(tt==tb[1])[0][0]]
 #    [tau,co]=ccf(tmpRF,tmpIF,(len(tt[tt_tb[0]:tt_tb[1]])-1)/(tt[tt_tb[1]]-tt[tt_tb[0]]))
 #    _plt.figure()
 #    _plt.plot(tau,co)
@@ -174,7 +191,7 @@ for ii in range(nfils):
         # Apply a zero-phase digital filter to both signals
         tmpRF = _sig.filtfilt(b, a, tmpRF)  # padding with zeros
         tmpIF = _sig.filtfilt(b, a, tmpIF)  # padding with zeros 
-    
+       
     if tt[1]-tt[0]!=tt[2]-tt[1]:
         tt2=_np.linspace(tt[0],tt[-1],len(tt),endpoint=True)
         tmpRF=_np.interp(_np.asarray(tt2,dtype=float),tt,tmpRF)
@@ -251,20 +268,20 @@ phxy[_np.where(phxy>2.7)] -= _np.pi
 
 # --------------- #
    
-sub1.axvline(x=1e-3*freq[freq_intb[0]], linewidth=2, color='k')
-sub1.axvline(x=1e-3*freq[freq_intb[-1]], linewidth=2, color='k')
-sub2.axvline(x=1e-3*freq[freq_intb[0]], linewidth=2, color='k')
-sub2.axvline(x=1e-3*freq[freq_intb[-1]], linewidth=2, color='k')
-#sub2.axhline(y=1./nwindows, linewidth=2, color='k')
-sub3.axvline(x=1e-3*freq[freq_intb[0]], linewidth=2, color='k')
-sub3.axvline(x=1e-3*freq[freq_intb[-1]], linewidth=2, color='k')
+#sub1.axvline(x=1e-3*freq[freq_intb[0]], linewidth=2, color='k')
+#sub1.axvline(x=1e-3*freq[freq_intb[-1]], linewidth=2, color='k')
+#sub2.axvline(x=1e-3*freq[freq_intb[0]], linewidth=2, color='k')
+#sub2.axvline(x=1e-3*freq[freq_intb[-1]], linewidth=2, color='k')
+#sub2.axhline(y=1./IRfft.Navr, linewidth=2, color='k')
+##sub3.axvline(x=1e-3*freq[freq_intb[0]], linewidth=2, color='k')
+##sub3.axvline(x=1e-3*freq[freq_intb[-1]], linewidth=2, color='k')
 sub4.plot(freqs, _np.sqrt(Cxy), 'o')
 ylims = sub4.get_ylim()
 sub4.set_ylim( 0, ylims[1] ) 
 sub4b.plot(freqs, phxy, 'rx')
-sub4.text(_np.average(freqs), 0.05, 
-          '%i to %i GHz'%(int(1e-3*freq[freq_intb[0]]),int(1e-3*freq[freq_intb[-1]])),
-          fontsize=12)
+#sub4.text(_np.average(freqs), 0.05, 
+#          '%i to %i GHz'%(int(1e-3*freq[freq_intb[0]]),int(1e-3*freq[freq_intb[-1]])),
+#          fontsize=12)
 
 #_plt.figure()
 #_plt.xlabel('r [cm]')
@@ -293,7 +310,7 @@ CorrVar = _np.fft.fftshift(CorrVar)
 clrs = ['b', 'g', 'm', 'r']
 clrs = clrs*8
 corr_title = scantitl+' Correlation'    
-_hCorr = _plt.figure(corr_title)    
+_hCorr = _plt.figure()    
 _aCorr = _hCorr.gca()
 # _aCxyRF.set_ylim((0, 1))
 _aCorr.set_xlabel('lags [us]')
@@ -321,3 +338,6 @@ _aCorr.fill_between(1e6*lags,
                    (_np.abs(Corr_avg)+_np.sqrt(_np.abs(Corr_var))), 
                    facecolor=clrs[1], alpha=0.5)
 
+#_plt.figure()
+#_plt.plot(tt,tmpRF)
+#_plt.plot(tt,tmpIF)

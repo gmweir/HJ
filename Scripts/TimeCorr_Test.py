@@ -26,35 +26,35 @@ datafolder = _os.path.abspath(_os.path.join('..','..','..','..', 'Workshop'))
 #datafolder = _os.path.join('/homea','weir','bin')
 print(datafolder)
 
-
-tt=_np.linspace(0,2.0*_np.pi,401)
-tt2=_np.linspace(0,4.0*_np.pi,801)
-sin1=_np.sin(tt)
-sin2=_np.sin(tt)
-
-#sin1=_np.array([0,0.5,1,2,3,3,4,2,1,0.5,0])
-#sin2=_np.array([0,0.5,1,2,3,3,4,2,1,0.5,0])
-#tt=range(len(sin1))
-
-x=_crosscorr(sin1,sin2)/_np.sum(sin1**2)
-[t,y]=ccf(sin1,sin2,1/((tt[-1]-tt[0])/(len(sin1)-1)))
-fig0=_plt.figure()
-_plt.plot(sin1)
-_plt.plot(sin2)
-fig=_plt.figure()
-_plt.plot(y)
-fig.suptitle('ccf method on sines')
-fig1=_plt.figure()
-_plt.plot(x)
-fig1.suptitle('crosscorr method on sines')
+#
+#tt=_np.linspace(0,2.0*_np.pi,401)
+#tt2=_np.linspace(0,4.0*_np.pi,801)
+#sin1=_np.sin(tt)
+#sin2=_np.sin(tt)
+#
+##sin1=_np.array([0,0.5,1,2,3,3,4,2,1,0.5,0])
+##sin2=_np.array([0,0.5,1,2,3,3,4,2,1,0.5,0])
+##tt=range(len(sin1))
+#
+#x=_crosscorr(sin1,sin2)/_np.sum(sin1**2)
+#[t,y]=ccf(sin1,sin2,1/((tt[-1]-tt[0])/(len(sin1)-1)))
+#fig0=_plt.figure()
+#_plt.plot(sin1)
+#_plt.plot(sin2)
+#fig=_plt.figure()
+#_plt.plot(y)
+#fig.suptitle('ccf method on sines')
+#fig1=_plt.figure()
+#_plt.plot(x)
+#fig1.suptitle('crosscorr method on sines')
 
 
 
 cmPerGHz = 1
-for nwindows in [1,10,100,1000,10000]:
+for nwindows in [100,1000,10000]:
 #    nwindows = 100
     overlap=0.0
-    sintest=False
+    sintest=True
     scantitl = 'CECE_jan17_fix4'
     # scantitl += '_50to400'
     #scantitl += '_400to500'
@@ -99,26 +99,42 @@ for nwindows in [1,10,100,1000,10000]:
     #    sub3.plot(tau,co)
         
     for ii in range(1):
-        filn = _os.path.abspath(_os.path.join(datafolder, fils[ii]))
-        print(filn)
-        tt, tmpRF, tmpIF = \
-            _np.loadtxt(filn, dtype=_np.float64, unpack=True, usecols=(0,1,2))
+        
+        if not sintest:
+            filn = _os.path.abspath(_os.path.join(datafolder, fils[ii]))
+            print(filn)
+            tt, tmpRF, tmpIF = \
+                _np.loadtxt(filn, dtype=_np.float64, unpack=True, usecols=(0,1,2))
+            tt = 1e-3*tt
+            tt_tb=[_np.where(tt<=tb[0])[0][0],_np.where(tt>=tb[1])[0][0]]
+            tt_used=tt[tt_tb[0]:tt_tb[1]]
+            RF_used=tmpRF[tt_tb[0]:tt_tb[1]]
+            IF_used=tmpIF[tt_tb[0]:tt_tb[1]]
             
-        if tt[1]-tt[0]!=tt[2]-tt[1]:
-            tt2=_np.linspace(tt[0],tt[-1],len(tt),endpoint=True)
+        if sintest:
+            tb=[0,2.0]
+            df=15.50e3
+            _np.random.seed()
+            n_s=5000001
+            tt=_np.linspace(0,2.0*_np.pi,n_s)
+            fs=1/(((tt[len(tt)-1]-tt[0])/len(tt)))
+            RF_used=0.05*_np.sin(2.0*_np.pi*(df)*tt)
+            ppp=fs/df #points per period
+            delay=20/fs #no of points delay/frequency = time delay
+            IF_used=0.02*_np.sin(2.0*_np.pi*(df)*(tt-delay))+_np.random.standard_normal( (tt.shape[0],) )
+            tt_tb=[_np.where(tt<=tb[0])[0][0],_np.where(tt>=tb[1])[0][0]]
+            tt_used=tt[tt_tb[0]:tt_tb[1]]
+    
+        if tt_used[1]-tt_used[0]!=tt_used[2]-tt_used[1]:
+            tt2=_np.linspace(tt_used[0],tt_used[-1],len(tt),endpoint=True)
             tmpRF=_np.interp(_np.asarray(tt2,dtype=float),tt,tmpRF)
             tmpIF=_np.interp(_np.asarray(tt2,dtype=float),tt,tmpIF)
-            tt=tt2
-        tt = 1e-3*tt
-        tt_tb=[_np.where(tt<=tb[0])[0][0],_np.where(tt>=tb[1])[0][0]]
-        tt_used=tt[tt_tb[0]:tt_tb[1]]
-        RF_used=tmpRF[tt_tb[0]:tt_tb[1]]
-        IF_used=tmpIF[tt_tb[0]:tt_tb[1]]
-        
-        if sintest:
-            tt_used=_np.linspace(0,2.0*_np.pi,40001)
-            RF_used=_np.sin(tt_used)
-            IF_used=_np.sin(tt_used)
+            tt_used=tt2     
+            
+#        if sintest:
+#            tt_used=_np.linspace(0,2.0*_np.pi,40001)
+#            RF_used=_np.sin(tt_used)
+#            IF_used=_np.sin(tt_used)
         
         Navr=nwindows
         nsig=len(tt_used)
@@ -167,8 +183,8 @@ for nwindows in [1,10,100,1000,10000]:
     ##    _plt.plot(tau,avcxy_z)
     #    
         fig4=_plt.figure()
-        _plt.plot(tau,_np.abs(avco))
-        _plt.plot(taucrosscorr,_np.abs(avcxy)) 
+        _plt.plot(tau,(avco))
+#        _plt.plot(taucrosscorr,(avcxy)) 
     #    _plt.plot(taucrosscorr,_np.abs(avcxy_z)) #equal as avcxy
         fig4.suptitle('cff (blue) and crosscorr (orange) method averaged correlation')
     
@@ -176,4 +192,5 @@ for nwindows in [1,10,100,1000,10000]:
     Bif=200e6        
     sqrtNs = _np.sqrt(2*Bvid*(tb[-1]-tb[0]))
     sens = _np.sqrt(2*Bvid/Bif/sqrtNs)
-    
+    print tau[_np.where(avco==max(avco))[0][0]]
+    print delay
