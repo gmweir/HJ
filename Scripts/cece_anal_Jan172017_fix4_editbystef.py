@@ -227,8 +227,9 @@ for ii in range(1):
     if j0<=0:        j0 = 0        # end if
     if j1>=len(tt):  j1 = -1       # end if
     
-    IRfft = fftanal(tt, tmpRF.copy(), tmpIF.copy(), windowfunction='SFT3M', tbounds=tb, 
-                    minFreq=minFreq, plotit=True) 
+    IRfft = fftanal(tt, tmpRF.copy(), tmpIF.copy(), tbounds=tb, 
+                    windowfunction='SFT3M', minFreq=minFreq, plotit=True) 
+    #possible windowfunctions: 'SFT3M', 'boxcar', 'Hamming', 'Hanning', 'SFT3F', many others
     #Navr=nwindows, windowoverlap=overlap, windowfunction='box'     
 
     MaxFreq=_np.append(MaxFreq,IRfft.Fs/2.)
