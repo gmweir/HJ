@@ -5,6 +5,14 @@ Created on Tue Jan 17 12:37:58 2017
 
 @author: weir
 """
+# ========================================================================== #
+# ========================================================================== #
+
+from __future__ import absolute_import, with_statement, absolute_import, \
+                       division, print_function, unicode_literals
+
+# ========================================================================== #
+# ========================================================================== #
 
 import numpy as _np
 import os as _os
@@ -147,32 +155,43 @@ phxy= _np.zeros( (nfils,), dtype=_np.complex64)
 
 MaxFreq=[]
 MinFreq=[]
-Pxy_avg=0
-Pxx_avg=0
-Pyy_avg=0
-Corr_avg=0
-Pxy_var=0
-Pxx_var=0
-Pyy_var=0
-Corr_var=0
+Pxy_avg=0.0
+Pxx_avg=0.0
+Pyy_avg=0.0
+Corr_avg=0.0
+Pxy_var=0.0
+Pxx_var=0.0
+Pyy_var=0.0
+Corr_var=0.0
+Ex_avg = 0.0   # careful about implicit typing with 0 (int) vs 0.0 (float)
+Ey_avg = 0.0
 for ii in range(1):
     if sintest:
-        tb=[0,50.0]
-        df=1e3
-        n_s=4000001
-        _np.random.seed()
-        tt=_np.linspace(0,20.0*_np.pi,n_s)
-        fs=1/(((tt[len(tt)-1]-tt[0])/len(tt)))
-        tmpRF=1*_np.sin(2.0*_np.pi*(df)*tt)
-#        tmpIF=+_np.random.standard_normal( size=(tt.shape[0],) )
-        tmpRF += _np.random.uniform( low=-1, high=1, size=(tt.shape[0],) )
-        delay_ph=0.5*_np.pi #time delay in phase shift
+        df=1e3        # At 1 KHz, that means that you have something like 50K periods
+        ampRF = 1.00
+        ampIF = 1.00
+        delay_ph=-0.5*_np.pi #time delay in phase shift
         delay_t=delay_ph/(2.0*_np.pi*(df)) #time delay in seconds
+
+        _np.random.seed()
+
+        n_s=1201           
+#        n_s=1200                   
+        tt=_np.linspace(0,20.0/df,n_s)    # 
+        tb = [tt[0], tt[-1]]
+#        tb=[0, 50]   # think about this a second.  Do you want 50 seconds of data?
+#        n_s=4000001   
+#        tt=_np.linspace(0,20.0*_np.pi,n_s)    # this is time in radians.  where do you put this in time?
+        fs=1/(((tt[len(tt)-1]-tt[0])/len(tt)))
+
+        tmpRF = ampRF*_np.sin(2.0*_np.pi*(df)*tt)
+#        tmpRF += 1.00*ampRF*_np.random.standard_normal( size=(tt.shape[0],) )   # there was an error here
+        tmpRF += 2.50*ampRF*_np.random.uniform( low=-1, high=1, size=(tt.shape[0],) )
+
         #some delays make the peak disappear, cannot find logic to which ones...
-#        tmpIF=1*_np.sin(2.0*_np.pi*(df)*(tt-delay))
-        tmpIF=1*_np.sin(2.0*_np.pi*(df)*(tt)-delay_ph)
-#        tmpIF=+_np.random.standard_normal( size=(tt.shape[0],) )
-#        tmpIF += _np.random.uniform( low=-1, high=1, size=(tt.shape[0],) )
+        tmpIF = ampIF*_np.sin(2.0*_np.pi*(df)*(tt)+delay_ph)
+#        tmpIF += 1.00*ampIF*_np.random.standard_normal( size=(tt.shape[0],) )
+#        tmpIF += 1*ampIF*_np.random.uniform( low=-1, high=1, size=(tt.shape[0],) )
         tt_tb=[_np.where(tt<=tb[0])[0][0],_np.where(tt>=tb[1])[0][0]]
     
     if not sintest:
@@ -188,18 +207,18 @@ for ii in range(1):
 #    _plt.plot(tau,co)
     
     if fLPF:
-        tmpRF = _sig.filtfilt(blpf, alpf, tmpRF)
-        tmpIF = _sig.filtfilt(blpf, alpf, tmpIF)
+        tmpRF = _sig.filtfilt(blpf, alpf, tmpRF.copy())
+        tmpIF = _sig.filtfilt(blpf, alpf, tmpIF.copy())
         
     if f0:
         # Apply a zero-phase digital filter to both signals
-        tmpRF = _sig.filtfilt(b, a, tmpRF)  # padding with zeros
-        tmpIF = _sig.filtfilt(b, a, tmpIF)  # padding with zeros 
+        tmpRF = _sig.filtfilt(b, a, tmpRF.copy())  # padding with zeros
+        tmpIF = _sig.filtfilt(b, a, tmpIF.copy())  # padding with zeros 
        
     if tt[1]-tt[0]!=tt[2]-tt[1]:
         tt2=_np.linspace(tt[0],tt[-1],len(tt),endpoint=True)
-        tmpRF=_np.interp(_np.asarray(tt2,dtype=float),tt,tmpRF)
-        tmpIF=_np.interp(_np.asarray(tt2,dtype=float),tt,tmpIF)
+        tmpRF=_np.interp(_np.asarray(tt2,dtype=float), tt, tmpRF.copy())
+        tmpIF=_np.interp(_np.asarray(tt2,dtype=float), tt, tmpIF.copy())
         tt=tt2
     
     
@@ -208,9 +227,10 @@ for ii in range(1):
     if j0<=0:        j0 = 0        # end if
     if j1>=len(tt):  j1 = -1       # end if
     
-    IRfft = fftanal(tt, tmpRF, tmpIF, windowfunction='SFT3M', tbounds=tb, minFreq=minFreq, plotit=True) 
+    IRfft = fftanal(tt, tmpRF.copy(), tmpIF.copy(), windowfunction='SFT3M', tbounds=tb, 
+                    minFreq=minFreq, plotit=True) 
     #Navr=nwindows, windowoverlap=overlap, windowfunction='box'     
-    npts = len(IRfft.freq)
+
     MaxFreq=_np.append(MaxFreq,IRfft.Fs/2.)
     print('Maximal frequency: '+str(MaxFreq[ii])+' Hz')
     MinFreq=_np.append(MinFreq,2.*IRfft.Fs/IRfft.fftinfo.nwins)
@@ -237,18 +257,17 @@ for ii in range(1):
     
     # ---------------- #
     
-    reP = _np.real(IRfft.Pxy)
-    imP = _np.imag(IRfft.Pxy)
-    
-    Pxy[ii] = _np.trapz(reP[freq_intb], x=freq[freq_intb]) \
-                + 1j*_np.trapz(imP[freq_intb], x=freq[freq_intb])    
+#    reP = _np.real(IRfft.Pxy)
+#    imP = _np.imag(IRfft.Pxy)
+#    
+#    Pxy[ii] = _np.trapz(reP[freq_intb], x=freq[freq_intb]) \
+#                + 1j*_np.trapz(imP[freq_intb], x=freq[freq_intb])    
+    Pxy[ii] = _np.trapz(IRfft.Pxy[freq_intb], x=freq[freq_intb])  # works with complex numbers
     Pxx[ii] = _np.trapz(IRfft.Pxx[freq_intb], x=freq[freq_intb])
     Pyy[ii] = _np.trapz(IRfft.Pyy[freq_intb], x=freq[freq_intb])
     
     # ---------------- #
-# Average Cross-correlation of one frequency component
-    xCorr = _np.sqrt(npts)*_np.fft.ifft(IRfft.Cxy, n=npts)
-    xCorr = _np.fft.fftshift(xCorr)
+    
     m_prev = _np.copy(Pxy_avg)
     Pxy_avg += (IRfft.Pxy - Pxy_avg) / (ii+1)
     Pxy_var += (IRfft.Pxy - Pxy_avg) * (IRfft.Pxy - m_prev)        
@@ -261,16 +280,33 @@ for ii in range(1):
     Pyy_avg += (IRfft.Pyy - Pyy_avg) / (ii+1)
     Pyy_var += (IRfft.Pyy - Pyy_avg) * (IRfft.Pyy - m_prev)    
 
+    # Average Cross-correlation of one frequency component
+    Ex_tmp = _np.trapz(tmpRF[j0:j1]*tmpRF[j0:j1], x=tt[j0:j1])
+    Ey_tmp = _np.trapz(tmpIF[j0:j1]*tmpIF[j0:j1], x=tt[j0:j1])
+    Ex_avg += (Ex_tmp.copy() - Ex_avg) / (ii+1)
+    Ey_avg += (Ey_tmp.copy() - Ey_avg) / (ii+1)
+    
+    npts = len(IRfft.freq)
+#    xCorr = _np.sqrt(npts)*_np.fft.ifft(IRfft.Cxy, n=npts)  # you need to inverse FFT shift here, and it should be Pxy    
+#    xCorr = _np.sqrt(npts)*_np.fft.ifft(IRfft.Cxy, n=npts)
+#    xCorr = _np.fft.fftshift(xCorr)
+    xCorr = _np.sqrt(npts)*_np.fft.ifft(_np.fft.ifftshift(IRfft.Pxy), n=npts)  # you need to inverse FFT shift here
+    xCorr = _np.fft.fftshift(xCorr) / _np.sqrt( Ex_tmp*Ey_tmp )
+    
     m_prev = _np.copy(Corr_avg)            
     Corr_avg += (xCorr - Corr_avg) / (ii+1)
     Corr_var += (xCorr - Corr_avg) * (xCorr - m_prev) 
     
 # end loop    
-Cxy2 = _np.abs( Pxy*Pxy.conjugate()) / (_np.abs(Pxx)*_np.abs(Pyy) )
-Cxy = _np.sqrt( Cxy2 )
-phxy = _np.arctan2(_np.imag(Pxy), _np.real(Pxy))
-phxy[_np.where(phxy<2.7)] += _np.pi    
+Cxy2 = _np.abs( Pxy*Pxy.conjugate()) / (_np.abs(Pxx)*_np.abs(Pyy) )  # Mean-squared coherence (integrated)
+Cxy = _np.sqrt( Cxy2 )      # RMS coherence (integrated)
+phxy = _np.arctan2(_np.imag(Pxy), _np.real(Pxy))   # cross-phase (integrated)
+phxy[_np.where(phxy<2.7)] += _np.pi                
 phxy[_np.where(phxy>2.7)] -= _np.pi    
+
+Coh = Pxy / _np.sqrt(_np.abs(Pxx)*_np.abs(Pyy) )  # Complex Coherence (integrated)
+Coh_avg = Pxy_avg / _np.sqrt(_np.abs(Pxx_avg)*_np.abs(Pyy_avg))    # complex coherence spectra
+Coh_var = ((1.0-Coh_avg*_np.conj(Coh_avg))/_np.sqrt(2*IRfft.Navr))**2.0 # spectra
 
 # --------------- #
    
@@ -302,16 +338,22 @@ sub4b.plot(freqs, phxy, 'rx')
 
 
 
-''' Average cross-correlation from the inverse FFT'''
-Cxy_avg = Pxy_avg / _np.sqrt(_np.abs(Pxx_avg)*_np.abs(Pyy_avg))
-Cxy_var = ((1.0-Cxy_avg*_np.conj(Cxy_avg))/_np.sqrt(2*IRfft.Navr))**2.0 
+''' Average cross-correlation from the inverse FFT'''  
 npts = len(IRfft.freq)
-lags = _np.asarray(_np.arange(-npts//2, npts//2), dtype=_np.float64) 
-lags = -lags/float(IRfft.Fs)
-CorrAvg = _np.sqrt(npts)*_np.fft.ifft(Cxy_avg, n=npts)
-CorrVar = _np.sqrt(npts)*_np.fft.ifft(Cxy_var, n=npts)
-CorrAvg = _np.fft.fftshift(CorrAvg)
-CorrVar = _np.fft.fftshift(CorrVar)
+#lags = _np.asarray(_np.arange(-npts//2, npts//2), dtype=_np.float64) 
+#lags /= float(IRfft.Fs)
+#lags *= -1.0
+lags = (_np.asarray(range(1, IRfft.nwins+1), dtype=int)-IRfft.Nnyquist)/IRfft.Fs
+
+CorrAvg = _np.sqrt(npts)*_np.fft.fftshift(_np.fft.ifft(_np.fft.ifftshift(Pxy_avg), n=npts))
+CorrAvg /= _np.sqrt( Ex_avg*Ey_avg )
+CorrVar = npts*_np.fft.fftshift(_np.fft.ifft(_np.fft.ifftshift(Pxy_var), n=npts))
+CorrVar /= Ex_avg*Ey_avg
+
+#CorrAvg = _np.sqrt(npts)*_np.fft.ifft(Cxy_avg, n=npts)
+#CorrVar = _np.sqrt(npts)*_np.fft.ifft(Cxy_var, n=npts)
+#CorrAvg = _np.fft.fftshift(CorrAvg)
+#CorrVar = _np.fft.fftshift(CorrVar)
 
 #clrs = ['b', 'g', 'm', 'r']
 #clrs = clrs*8
