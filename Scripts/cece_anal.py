@@ -23,8 +23,9 @@ from FFT.notch_filter import iirnotch
 
 # datafolder = _os.path.abspath(_os.path.join('..', 'bin'))
 #datafolder = _os.path.abspath( _os.path.join( '/', 'Volumes', 'NawName','HeliotronJ', 'DATA' ) )
-datafolder = _os.path.abspath( _os.path.join('G:/', 'ownCloud','HeliotronJ','DATA' ) )
+#datafolder = _os.path.abspath( _os.path.join('G:/', 'ownCloud','HeliotronJ','DATA' ) )
 # datafolder = _os.path.join('/homea','weir','bin')
+datafolder=_os.path.join('..','..','..')
 
 print('Existence check: ' + datafolder)
 if _os.path.exists(datafolder):
@@ -45,6 +46,9 @@ Fs = 1e6
 #cohtitl = 'CECE_jan17'
 ##titls.extend( [cohtitl + '_fix2'] )
 #titls.extend( [cohtitl + '_fix4'] )
+cohtitl='local_test'
+titls.extend([cohtitl+ 'Local Stef'])
+
 #clrs = ['b', 'g']
 #nb = [0.150, 0.174]
 ##tb = [0.192, 0.370]
@@ -114,9 +118,11 @@ Fs = 1e6
 
 # =============== #
 #
-cohtitl = 'CECE_oct302015'
-titls.extend( [cohtitl + '_fix1'] )
-titls.extend( [cohtitl + '_fix2'] )
+#cohtitl = 'CECE_oct302015'
+#titls.extend( [cohtitl + '_fix1'] )
+#titls.extend( [cohtitl + '_fix2'] )
+
+
 clrs = ['b', 'g', 'm', 'r']
 nb = [0.150, 0.180]
 tb = [0.240, 0.315]
@@ -174,7 +180,7 @@ Bvid = min(fluctbw, Bvid)  # minimum of fluctuation bandwidth and hardware
 
 ylimsC = [-0.05, 1e-20]
 ylimsP = [0.0, 1e-20]
-f0 = False
+f0 = True
 # ===== #
 if f0:
     #  Make a band rejection / Notch filter for MHD or electronic noise
@@ -208,9 +214,9 @@ if f0:
     ax[1].grid()
     _plt.show()
 
-fLPF=False
+fLPF=True
 if fLPF:
-    fLPF = 2*intb[1]      # [Hz], frequency to reject
+    fLPF = 0.5*intb[1]      # [Hz], frequency to reject #was 2 but this did not work
     Bvid = fLPF
     lpf_order = 1       # Order of low pass filter
     w0 = f0/(0.5*Fs)   # Normalized frequency
@@ -315,6 +321,14 @@ TeAvg = list()
 statlim = list()
 for scantitl in titls:
     print(scantitl)
+    if scantitl == 'Local Stef':
+        freq_ref = 60.0   # [GHz]
+        fils = ['CECE.69769','CECE.69770','CECE.69771','CECE.69772','CECE.69773','CECE.69777']
+        freqs = [13.075,     13.075,      13.085,      13.095,      13.105,      13.08]
+        freqs = [4.0*freqq+8.0 for freqq in freqs]
+        
+        txtstr = ''
+    
     if scantitl == 'CECE_jan17_fix1':     # almost all w/in BW of channels
         fils = ['CECE.65624','CECE.65625']
         freqs = [68.3,       68.3]

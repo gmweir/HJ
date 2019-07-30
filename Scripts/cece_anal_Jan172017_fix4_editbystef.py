@@ -43,7 +43,7 @@ intb = [15e3, 200e3]  # original
 #intb = [50e3, 400e3]  # broadband fluctuations
 # intb = [400e3, 465e3]  # high frequency mode
 
-tb=[0.15,1]
+tb=[0.15,0.27]
 sintest=True
 #tb=[0.3,0.39]
 #tb = [0.192, 0.370]
@@ -51,8 +51,8 @@ f0=False
 if f0:
     Fs = 1e6
     #  Make a band rejection / Notch filter for MHD or electronic noise
-    f0 = 80.0428e3      # [Hz], frequency to reject
-    Q = 30.0         # Quality factor of digital filter
+    f0 = 80.48e3      # [Hz], frequency to reject
+    Q = 20.0         # Quality factor of digital filter
     w0 = f0/(0.5*Fs)   # Normalized frequency
     
     # Design the notch
@@ -121,7 +121,7 @@ sub1.set_ylabel('Cross Power [a.u.]')
 sub2 = _plt.subplot(4, 1, 2, sharex=sub1)
 # sub2.set_ylim((0, 1))
 sub2.set_xlabel('freq [KHz]')
-sub2.set_ylabel('Coherence')
+sub2.set_ylabel('RMS Coherence')
 
 sub3 = _plt.subplot(4, 1, 3, sharex=sub1)
 # sub3.set_ylim((0, 1))
@@ -157,18 +157,22 @@ Pyy_var=0
 Corr_var=0
 for ii in range(1):
     if sintest:
-        tb=[0,20.0]
-        df=10e3
+        tb=[0,50.0]
+        df=1e3
         n_s=4000001
         _np.random.seed()
         tt=_np.linspace(0,20.0*_np.pi,n_s)
         fs=1/(((tt[len(tt)-1]-tt[0])/len(tt)))
-        tmpRF=0.05*_np.sin(2.0*_np.pi*(df)*tt)
-        delay=19*_np.pi/fs
-        #some delays make the peak disappear, cannot find logic to which ones...
-        tmpIF=0.05*_np.sin(2.0*_np.pi*(df)*(tt-delay))
+        tmpRF=1*_np.sin(2.0*_np.pi*(df)*tt)
 #        tmpIF=+_np.random.standard_normal( size=(tt.shape[0],) )
-        tmpIF += _np.random.uniform( low=-1, high=1, size=(tt.shape[0],) )
+        tmpRF += _np.random.uniform( low=-1, high=1, size=(tt.shape[0],) )
+        delay_ph=0.5*_np.pi #time delay in phase shift
+        delay_t=delay_ph/(2.0*_np.pi*(df)) #time delay in seconds
+        #some delays make the peak disappear, cannot find logic to which ones...
+#        tmpIF=1*_np.sin(2.0*_np.pi*(df)*(tt-delay))
+        tmpIF=1*_np.sin(2.0*_np.pi*(df)*(tt)-delay_ph)
+#        tmpIF=+_np.random.standard_normal( size=(tt.shape[0],) )
+#        tmpIF += _np.random.uniform( low=-1, high=1, size=(tt.shape[0],) )
         tt_tb=[_np.where(tt<=tb[0])[0][0],_np.where(tt>=tb[1])[0][0]]
     
     if not sintest:
@@ -204,11 +208,13 @@ for ii in range(1):
     if j0<=0:        j0 = 0        # end if
     if j1>=len(tt):  j1 = -1       # end if
     
-    IRfft = fftanal(tt, tmpRF, tmpIF, tbounds=tb, minFreq=minFreq) 
+    IRfft = fftanal(tt, tmpRF, tmpIF, windowfunction='SFT3M', tbounds=tb, minFreq=minFreq, plotit=True) 
     #Navr=nwindows, windowoverlap=overlap, windowfunction='box'     
     npts = len(IRfft.freq)
     MaxFreq=_np.append(MaxFreq,IRfft.Fs/2.)
+    print('Maximal frequency: '+str(MaxFreq[ii])+' Hz')
     MinFreq=_np.append(MinFreq,2.*IRfft.Fs/IRfft.fftinfo.nwins)
+    print('Minimal frequency: '+str(MinFreq[ii])+' Hz')
 #    ircor = xcorr(tmpRF[j0:j1], tmpIF[j0:j1])
 
     # ---------------- #
@@ -226,7 +232,7 @@ for ii in range(1):
     sub1.set_ylabel('Cross Power [dB]')
 
 #    sub1.plot(1e-3*IRfft.freq, 1e6*_np.abs(IRfft.Pxy), '-')        
-    sub2.plot(1e-3*IRfft.freq, _np.sqrt(IRfft.Cxy), '-')
+    sub2.plot(1e-3*IRfft.freq, _np.abs(IRfft.Cxy), '-')
     sub3.plot(1e-3*IRfft.freq, IRfft.phi_xy, '-')
     
     # ---------------- #
@@ -260,7 +266,7 @@ for ii in range(1):
     Corr_var += (xCorr - Corr_avg) * (xCorr - m_prev) 
     
 # end loop    
-Cxy2 = _np.abs( Pxy.conjugate()*Pxy ) / (_np.abs(Pxx)*_np.abs(Pyy) )
+Cxy2 = _np.abs( Pxy*Pxy.conjugate()) / (_np.abs(Pxx)*_np.abs(Pyy) )
 Cxy = _np.sqrt( Cxy2 )
 phxy = _np.arctan2(_np.imag(Pxy), _np.real(Pxy))
 phxy[_np.where(phxy<2.7)] += _np.pi    
@@ -307,36 +313,36 @@ CorrVar = _np.sqrt(npts)*_np.fft.ifft(Cxy_var, n=npts)
 CorrAvg = _np.fft.fftshift(CorrAvg)
 CorrVar = _np.fft.fftshift(CorrVar)
 
-clrs = ['b', 'g', 'm', 'r']
-clrs = clrs*8
-corr_title = scantitl+' Correlation'    
-_hCorr = _plt.figure()    
-_aCorr = _hCorr.gca()
-# _aCxyRF.set_ylim((0, 1))
-_aCorr.set_xlabel('lags [us]')
-_aCorr.set_ylabel(r'$\rho_{x,y}$')
-_aCorr.set_title(scantitl)  
-#_plt.figure()
-_hCorr.sca(_aCorr)
-_aCorr.plot(1e6*lags, _np.abs(CorrAvg), '-', lw=2, color=clrs[1] )
-_aCorr.fill_between(1e6*lags, 
-                   (_np.abs(CorrAvg)-_np.sqrt(_np.abs(CorrVar))), 
-                   (_np.abs(CorrAvg)+_np.sqrt(_np.abs(CorrVar))), 
-                   facecolor=clrs[1], alpha=0.5)
-
-_hCorr = _plt.figure()    
-_aCorr = _hCorr.gca()
-# _aCxyRF.set_ylim((0, 1))
-_aCorr.set_xlabel('lags [us]')
-_aCorr.set_ylabel(r'$\rho_{x,y}$')
-_aCorr.set_title(scantitl)  
-#_plt.figure()
-_hCorr.sca(_aCorr)
-_aCorr.plot(1e6*lags, _np.abs(Corr_avg), '-', lw=2, color=clrs[1] )
-_aCorr.fill_between(1e6*lags, 
-                   (_np.abs(Corr_avg)-_np.sqrt(_np.abs(Corr_var))), 
-                   (_np.abs(Corr_avg)+_np.sqrt(_np.abs(Corr_var))), 
-                   facecolor=clrs[1], alpha=0.5)
+#clrs = ['b', 'g', 'm', 'r']
+#clrs = clrs*8
+#corr_title = scantitl+' Correlation'    
+#_hCorr = _plt.figure()    
+#_aCorr = _hCorr.gca()
+## _aCxyRF.set_ylim((0, 1))
+#_aCorr.set_xlabel('lags [us]')
+#_aCorr.set_ylabel(r'$\rho_{x,y}$')
+#_aCorr.set_title(scantitl)  
+##_plt.figure()
+#_hCorr.sca(_aCorr)
+#_aCorr.plot(1e6*lags, _np.abs(CorrAvg), '-', lw=2, color=clrs[1] )
+#_aCorr.fill_between(1e6*lags, 
+#                   (_np.abs(CorrAvg)-_np.sqrt(_np.abs(CorrVar))), 
+#                   (_np.abs(CorrAvg)+_np.sqrt(_np.abs(CorrVar))), 
+#                   facecolor=clrs[1], alpha=0.5)
+#
+#_hCorr = _plt.figure()    
+#_aCorr = _hCorr.gca()
+## _aCxyRF.set_ylim((0, 1))
+#_aCorr.set_xlabel('lags [us]')
+#_aCorr.set_ylabel(r'$\rho_{x,y}$')
+#_aCorr.set_title(scantitl)  
+##_plt.figure()
+#_hCorr.sca(_aCorr)
+#_aCorr.plot(1e6*lags, _np.abs(Corr_avg), '-', lw=2, color=clrs[1] )
+#_aCorr.fill_between(1e6*lags, 
+#                   (_np.abs(Corr_avg)-_np.sqrt(_np.abs(Corr_var))), 
+#                   (_np.abs(Corr_avg)+_np.sqrt(_np.abs(Corr_var))), 
+#                   facecolor=clrs[1], alpha=0.5)
 
 #_plt.figure()
 #_plt.plot(tt,tmpRF)
