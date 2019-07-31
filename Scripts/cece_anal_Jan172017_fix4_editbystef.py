@@ -51,7 +51,7 @@ intb = [15e3, 200e3]  # original
 #intb = [50e3, 400e3]  # broadband fluctuations
 # intb = [400e3, 465e3]  # high frequency mode
 
-tb=[0.15,0.27]
+tb=[0.15,0.25]
 sintest=True
 #tb=[0.3,0.39]
 #tb = [0.192, 0.370]
@@ -144,7 +144,8 @@ sub4b = sub4.twinx()
 sub4b.set_ylabel('Phase [rad]', color='r')
 
 nfils = len(fils)
-freqs = _np.asarray(freqs, dtype=_np.float64)
+nfils = 1
+freqs = _np.asarray(freqs[0:nfils], dtype=_np.float64)
 
 Pxy = _np.zeros( (nfils,), dtype=_np.complex64)
 Pxx = _np.zeros( (nfils,), dtype=_np.complex64)
@@ -165,9 +166,9 @@ Pyy_var=0.0
 Corr_var=0.0
 Ex_avg = 0.0   # careful about implicit typing with 0 (int) vs 0.0 (float)
 Ey_avg = 0.0
-for ii in range(1):
+for ii in range(nfils):
     if sintest:
-        df=1e3        # At 1 KHz, that means that you have something like 50K periods
+        df=1e3
         ampRF = 1.00
         ampIF = 1.00
         delay_ph=-0.5*_np.pi #time delay in phase shift
@@ -175,25 +176,27 @@ for ii in range(1):
 
         _np.random.seed()
 
-        n_s=1201           
-#        n_s=1200                   
-        tt=_np.linspace(0,20.0/df,n_s)    # 
-        tb = [tt[0], tt[-1]]
-#        tb=[0, 50]   # think about this a second.  Do you want 50 seconds of data?
+        n_s=1201          
+#        n_s=1200
+        periods=20.0         
+        tt=_np.linspace(0,periods/df,n_s)    
+        tb = [tt[0], tt[-10]] #some way or another he does not like tt[-1] in the fftanal
 #        n_s=4000001   
-#        tt=_np.linspace(0,20.0*_np.pi,n_s)    # this is time in radians.  where do you put this in time?
         fs=1/(((tt[len(tt)-1]-tt[0])/len(tt)))
 
         tmpRF = ampRF*_np.sin(2.0*_np.pi*(df)*tt)
 #        tmpRF += 1.00*ampRF*_np.random.standard_normal( size=(tt.shape[0],) )   # there was an error here
-        tmpRF += 2.50*ampRF*_np.random.uniform( low=-1, high=1, size=(tt.shape[0],) )
+        tmpRF += 10.50*ampRF*_np.random.uniform( low=-1, high=1, size=(tt.shape[0],) )
 
-        #some delays make the peak disappear, cannot find logic to which ones...
         tmpIF = ampIF*_np.sin(2.0*_np.pi*(df)*(tt)+delay_ph)
 #        tmpIF += 1.00*ampIF*_np.random.standard_normal( size=(tt.shape[0],) )
-#        tmpIF += 1*ampIF*_np.random.uniform( low=-1, high=1, size=(tt.shape[0],) )
+#        tmpIF += 1.00*ampIF*_np.random.uniform( low=-1, high=1, size=(tt.shape[0],) )
         tt_tb=[_np.where(tt<=tb[0])[0][0],_np.where(tt>=tb[1])[0][0]]
-    
+        
+        Bvid=0.5e6
+        Bif=200e6        
+        sqrtNs = _np.sqrt(2*Bvid*(tb[-1]-tb[0]))
+        sens = _np.sqrt(2*Bvid/Bif/sqrtNs)
     if not sintest:
         
         filn = _os.path.abspath(_os.path.join(datafolder, fils[ii]))
@@ -248,14 +251,12 @@ for ii in range(1):
 #    if i1>=len(freq):  i1 = -1       # end if
 
                                 
-    
+    #    sub1.plot(1e-3*IRfft.freq, 1e6*_np.abs(IRfft.Pxy), '-')  
     sub1.plot(1e-3*IRfft.freq, 10*_np.log10(_np.abs(IRfft.Pxy)), '-')    
-    sub1.set_ylabel('Cross Power [dB]')
-
-#    sub1.plot(1e-3*IRfft.freq, 1e6*_np.abs(IRfft.Pxy), '-')        
+    sub1.set_ylabel('Cross Power [dB]') 
     sub2.plot(1e-3*IRfft.freq, _np.abs(IRfft.Cxy), '-')
     sub3.plot(1e-3*IRfft.freq, IRfft.phi_xy, '-')
-    
+    _plt.close(hfig)
     # ---------------- #
     
 #    reP = _np.real(IRfft.Pxy)
@@ -318,10 +319,12 @@ Coh_var = ((1.0-Coh_avg*_np.conj(Coh_avg))/_np.sqrt(2*IRfft.Navr))**2.0 # spectr
 #sub2.axhline(y=1./IRfft.Navr, linewidth=2, color='k')
 ##sub3.axvline(x=1e-3*freq[freq_intb[0]], linewidth=2, color='k')
 ##sub3.axvline(x=1e-3*freq[freq_intb[-1]], linewidth=2, color='k')
+
 sub4.plot(freqs, _np.sqrt(Cxy), 'o')
 ylims = sub4.get_ylim()
 sub4.set_ylim( 0, ylims[1] ) 
 sub4b.plot(freqs, phxy, 'rx')
+
 #sub4.text(_np.average(freqs), 0.05, 
 #          '%i to %i GHz'%(int(1e-3*freq[freq_intb[0]]),int(1e-3*freq[freq_intb[-1]])),
 #          fontsize=12)
@@ -390,3 +393,5 @@ CorrVar /= Ex_avg*Ey_avg
 #_plt.figure()
 #_plt.plot(tt,tmpRF)
 #_plt.plot(tt,tmpIF)
+
+    
