@@ -32,15 +32,10 @@ datafolder = _os.path.abspath(_os.path.join('W://','HJ','Data'))
 print(datafolder)
 
 cmPerGHz = 1
-#nwindows = 500
-#overlap=0.50
-minFreq=0.1e3
-scantitl = 'CECE_jan17_fix4'
-# scantitl += '_50to400'
-#scantitl += '_400to500'
 Fs = 1e6
-#minFreq = 25e3
-minFreq = 5e3
+minFreq = 25e3
+#minFreq = 7.5e3
+#minFreq = 0.1e3
 fLPF=False
 f0 = False
 sepshots = False  # separate the shots into different figures
@@ -52,8 +47,8 @@ backgroundsubtract = True  # use the method with _np.real(cc-ccbg)
 keepphase = True  # preserve the phase, convert to phasor notation then subtract amplitude of background
 #keepphase = False # don't worry abotu the phase (assume small complex comp. of bg), just subtract off the whole background spectrum
 
-oldstylesubtract = True  # reproduce results from ECE paper and Creely, etc. (background subtract coherence within frequency limits)
-#oldstylesubtract = False  # more "Physics based" (background subtract noise spectra as measured pre-plasma start-up)
+#oldstylesubtract = True  # reproduce results from ECE paper and Creely, etc. (background subtract coherence within frequency limits)
+oldstylesubtract = False  # more "Physics based" (background subtract noise spectra as measured pre-plasma start-up)
 
 Bvid=0.5e6
 Bif=200e6
@@ -80,24 +75,24 @@ freqs = []
 ##bg = [400e3, 1e6]  # background for coherence subtraction - automatically selected with fallback
 #Bvid = intb[1]
 
-#txtstr = 'jan17_fix4'
-#fils = ['CECE.65642','CECE.65643','CECE.65644','CECE.65645','CECE.65646','CECE.65647']
-#freqs = [68.0,       68.3,        68.2,         68.1,       68.15,       68.05]
-#
-#fils.extend(['CECE.65648','CECE.65649','CECE.65650','CECE.65651','CECE.65652'])
-#freqs.extend([67.95,      68.25,       68.125,      67.90,       67.80])
-#tbg = 0.17
-##tb = [0.192, 0.370]  # a little bit of saturation at beginning
-#tb = [0.20, 0.370]   # a little bit of saturation at beginning
-##tb = [0.20, 0.250]   #
-##tb = [0.25, 0.30]    # we need to check the log for this shot to figure out timing
-##tb = [0.32, 0.37]    # we need to check the log for this shot to figure out timing
-##tb=[0.3,0.39]
-#
-##intb = [15e3, 400e3]  # original
-##bg = [400e3, 1e6]  # background for coherence subtraction - automatically selected with fallback
-#intb = [375e3, 500e3]  # much better!  with Gavin's method of background subtraction
-#bg = [0.0e3, 375.0e3]  # background for coherence subtraction - automatically selected with fallback
+txtstr = 'jan17_fix4'
+fils = ['CECE.65642','CECE.65643','CECE.65644','CECE.65645','CECE.65646','CECE.65647']
+freqs = [68.0,       68.3,        68.2,         68.1,       68.15,       68.05]
+
+fils.extend(['CECE.65648','CECE.65649','CECE.65650','CECE.65651','CECE.65652'])
+freqs.extend([67.95,      68.25,       68.125,      67.90,       67.80])
+tbg = 0.17
+#tb = [0.192, 0.370]  # a little bit of saturation at beginning
+tb = [0.20, 0.370]   # a little bit of saturation at beginning
+#tb = [0.20, 0.250]   #
+#tb = [0.25, 0.30]    # we need to check the log for this shot to figure out timing
+#tb = [0.32, 0.37]    # we need to check the log for this shot to figure out timing
+#tb=[0.3,0.39]
+
+#intb = [15e3, 400e3]  # original
+#bg = [400e3, 1e6]  # background for coherence subtraction - automatically selected with fallback
+intb = [375e3, 500e3]  # much better!  with Gavin's method of background subtraction
+bg = [0.0e3, 375.0e3]  # background for coherence subtraction - automatically selected with fallback
 
 ## January 17th, 2017
 #txtstr = 'jan17_fix1'
@@ -126,17 +121,18 @@ freqs = []
 #freqs = [68.3,       68.3,        68.3,         68.3]
 
 
-# January 27th,
-freq_ref = 68.0   # [GHz]
-tbg = 0.17  # background
-tb = [0.21, 0.315]
-#intb = [10e3, 300e3]  # good
-intb = [40e3, 110e3]  # good
-bg = [400e3, 500e6]  # background for coherence subtraction - automatically selected with fallback
-
-txtstr = 'Jan 27, ECH: 107 kW'
-fils = ['CECE.65947','CECE.65948','CECE.65949','CECE.65950']
-freqs = [68.3,        68.3,         68.3,       68.3]
+## January 27th,
+#freq_ref = 68.0   # [GHz]
+#tbg = 0.180  # background
+#tb = [0.21, 0.315]
+##tb = [0.25, 0.30]
+##intb = [10e3, 300e3]  # good
+#intb = [40e3, 110e3]  # good
+#bg = [400e3, 500e6]  # background for coherence subtraction - automatically selected with fallback
+#
+#txtstr = 'Jan 27, ECH: 107 kW'
+#fils = ['CECE.65947','CECE.65948','CECE.65949','CECE.65950']
+#freqs = [68.3,        68.3,         68.3,       68.3]
 
 #txtstr = 'Jan. 27, ECH: 174 kW'
 #fils = ['CECE.65953','CECE.65954','CECE.65955','CECE.65956','CECE.65957','CECE.65958']
@@ -330,13 +326,14 @@ for ii in range(nfils):
 #        SignalTime=tt[tt_tb][1]-tt[tt_tb][0]  # you've already truncated the signal into time
         SignalTime=tt[-1]-tt[0]
 
-        bg_anal = fftanal(ttbg.copy(), bgRF.copy(), bgIF.copy(), windowfunction='hanning',
-                          onesided=True, minFreq=minFreq, plotit=False)
-        bg_anal.fftpwelch()
-
         sig_anal = fftanal(tt.copy(), tmpRF.copy(), tmpIF.copy(), windowfunction='hanning',
                           onesided=True, minFreq=minFreq, plotit=False)
         sig_anal.fftpwelch()
+
+        bg_anal = fftanal(ttbg.copy(), bgRF.copy(), bgIF.copy(), windowfunction='hanning',
+                          onesided=True, Navr=sig_anal.Navr, plotit=False)
+#                          onesided=True, minFreq=minFreq, plotit=False)
+        bg_anal.fftpwelch()
         nwins = sig_anal.nwins
         fs = sig_anal.Fs
         fr = fs/float(nwins)
@@ -345,6 +342,9 @@ for ii in range(nfils):
         Pxy = sig_anal.Pxy.copy()
         Pxx = sig_anal.Pxx.copy()
         Pyy = sig_anal.Pyy.copy()
+
+        lags = sig_anal.fftinfo.lags.copy()
+        corrcoef = sig_anal.fftinfo.corrcoef.copy()
 
 #        #for multiple windows
 #        nsig=len(tmpRF)
@@ -516,11 +516,48 @@ for ii in range(nfils):
                 cc = (Pxy-Pxy_tmp)/_np.sqrt((Pxx-Pxx_tmp).real*(Pyy-Pyy_tmp).real)
     ##            ccbg = _np.interp(freq, bg_anal.freq, ccbg)
                 ccbg = 0.0*_np.ones_like(cc)
-            # end f
+            # end if
             # =============================================== #
         else:
             ccbg = 0.0
         # end if
+        Rxx = Pxx.copy()
+        Ryy = Pyy.copy()
+        Rxy = Pxy.copy()
+        Rxx[1:-1, ...] *= 0.5
+        Ryy[1:-1, ...] *= 0.5
+        Rxy[1:-1, ...] *= 0.5
+        if sig_anal.nwins%2:
+            Rxx[-1, ...] *= 0.5
+            Ryy[-1, ...] *= 0.5
+            Rxy[-1, ...] *= 0.5
+        Rxx = _np.fft.irfft(Rxx, n=sig_anal.nwins, axis=0)
+        Ryy = _np.fft.irfft(Ryy, n=sig_anal.nwins, axis=0)
+        Rxy = _np.fft.irfft(Rxy, n=sig_anal.nwins, axis=0)
+        Rxx *= _np.sqrt(sig_anal.nwins)
+        Ryy *= _np.sqrt(sig_anal.nwins)
+        Rxy *= _np.sqrt(sig_anal.nwins)
+
+        # Calculate the normalized auto- and cross-correlations
+        Ex = Rxx[0, ...].copy()    # power in the x-spectrum, int( |u(f)|^2, df)
+        Ey = Ryy[0, ...].copy()    # power in the y-spectrum, int( |v(f)|^2, df)
+
+        Rxx = _np.fft.fftshift(Rxx, axes=0)
+        Ryy = _np.fft.fftshift(Ryy, axes=0)
+        Rxy = _np.fft.fftshift(Rxy, axes=0)
+
+        Rxx /= Ex
+        Ryy /= Ey
+        corrcoef = Rxy/_np.sqrt(Ex*Ey)
+        lags = (_np.asarray(range(1, sig_anal.nwins+1), dtype=int)-sig_anal.Nnyquist)/sig_anal.Fs
+
+        _plt.figure("Correlation Coefficient")
+        _plt.plot(1e6*lags, corrcoef, '-')
+        _plt.xlabel("lags [us]")
+        _plt.ylabel(r'$\rho_{x,y}$')
+
+        # ======================== #
+
         sigmacc=_np.sqrt((1-_np.abs(cc)**2)**2/(2*Navr))
         rcc = _np.real(cc-ccbg)    # the real part is for creating an RMS
 #        rcc = _np.abs(cc-ccbg)    # we already have an RMS, but whatever
@@ -533,7 +570,8 @@ for ii in range(nfils):
 
 
         Tfluct=_np.sqrt(2*integral/Bif)
-        sigmaTfluct=_np.sqrt(_np.sum((sigmacc*fr)**2))/(2*Bif*Tfluct)
+#        sigmaTfluct=_np.sqrt(_np.sum((sigmacc*fr)**2))/(2*Bif*Tfluct)
+        sigmaTfluct=_np.sqrt(_np.sum((sigmacc*fr)**2))/(Bif*Tfluct)
 #        print('Tfluct/T= '+str(100*Tfluct)+'%+- '+str(100*sigmaTfluct)+'%')
         msg = u'Tfluct/T=%2.3f\u00B1%2.3f%%'%(100*Tfluct, 100*sigmaTfluct)
         print(msg)
@@ -688,7 +726,7 @@ _sqrtNs = _np.sqrt(2*Bvid*nfils*(tb[-1]-tb[0]))
 _sens = _np.sqrt(2*Bvid/Bif/_sqrtNs)
 
 _Tfluct=_np.sqrt(2*_integral/Bif)
-_sigmaTfluct=_np.sqrt(_np.sum((_sigmacc*fr/nfils)**2))/(2*Bif*_Tfluct)
+_sigmaTfluct=_np.sqrt(_np.sum((_sigmacc*fr/nfils)**2))/(Bif*_Tfluct)
 #        print('Tfluct/T= '+str(100*Tfluct)+'%+- '+str(100*sigmaTfluct)+'%')
 _msg = u'Tfluct/T=%2.3f\u00B1%2.3f%%'%(100*_Tfluct, 100*_sigmaTfluct)
 
