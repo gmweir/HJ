@@ -59,7 +59,7 @@ print(datafolder)
 
 
 cmPerGHz = 1
-for nwindows in [100,1000,10000]:
+for nwindows in [1,10,100,1000,10000]:
 #    nwindows = 100
     overlap=0.0
     sintest=True
@@ -134,7 +134,7 @@ for nwindows in [100,1000,10000]:
             tt_used=tt[tt_tb[0]:tt_tb[1]]
     
         if tt_used[1]-tt_used[0]!=tt_used[2]-tt_used[1]:
-            tt2=_np.linspace(tt_used[0],tt_used[-1],len(tt),endpoint=True)
+            tt2=_np.linspace(tt_used[0],tt_used[-1],len(tt_used),endpoint=True)
             tmpRF=_np.interp(_np.asarray(tt2,dtype=float),tt,tmpRF)
             tmpIF=_np.interp(_np.asarray(tt2,dtype=float),tt,tmpIF)
             tt_used=tt2     
@@ -200,8 +200,9 @@ for nwindows in [100,1000,10000]:
     Bif=200e6        
     sqrtNs = _np.sqrt(2*Bvid*(tb[-1]-tb[0]))
     sens = _np.sqrt(2*Bvid/Bif/sqrtNs)
-    print(tau[_np.where(avco==max(avco))[0][0]])
-    print(delay)
+    print('$\tau$= '+str(tau[_np.where(avco==max(avco))[0][0]]))
+    if sintest:
+        print('delay= '+str(delay))
 # end for
 
 
