@@ -47,12 +47,19 @@ freqs = [4.0*freq+8.0 for freq in freqs]
 #fils.extend(['CECE.65648','CECE.65649','CECE.65650','CECE.65651','CECE.65652'])
 #freqs.extend([67.95,      68.25,       68.125,      67.90,       67.80])
 
+#fils=['CECE.65644']
+#freqs=[68.2]
+
+
+nfils = len(fils)
+nfils = 5
+freqs = _np.asarray(freqs[0:nfils], dtype=_np.float64)
 intb = [15e3, 200e3]  # original
 #intb = [50e3, 400e3]  # broadband fluctuations
 # intb = [400e3, 465e3]  # high frequency mode
 
 tb=[0.15,0.25]
-sintest=True
+sintest=False
 #tb=[0.3,0.39]
 #tb = [0.192, 0.370]
 f0=False
@@ -143,10 +150,6 @@ sub4.set_ylabel('Coherence Length')
 sub4b = sub4.twinx()
 sub4b.set_ylabel('Phase [rad]', color='r')
 
-nfils = len(fils)
-nfils = 1
-freqs = _np.asarray(freqs[0:nfils], dtype=_np.float64)
-
 Pxy = _np.zeros( (nfils,), dtype=_np.complex64)
 Pxx = _np.zeros( (nfils,), dtype=_np.complex64)
 Pyy = _np.zeros( (nfils,), dtype=_np.complex64)
@@ -231,7 +234,8 @@ for ii in range(nfils):
     if j1>=len(tt):  j1 = -1       # end if
     
     IRfft = fftanal(tt, tmpRF.copy(), tmpIF.copy(), tbounds=tb, 
-                    windowfunction='SFT3M', minFreq=minFreq, plotit=True) 
+                    windowfunction='SFT3M', minFreq=minFreq, plotit=True,
+                    onesided=True) 
     #possible windowfunctions: 'SFT3M', 'boxcar', 'Hamming', 'Hanning', 'SFT3F', many others
     #Navr=nwindows, windowoverlap=overlap, windowfunction='box'     
 
