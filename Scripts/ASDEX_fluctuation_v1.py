@@ -299,7 +299,7 @@ for ii in range(nfils):
         
         
         Tfluct=_np.sqrt(2*integral/Bif)
-        sigmaTfluct=_np.sqrt(_np.sum((sigmacc*fr)**2))/(2*Bif*Tfluct)
+        sigmaTfluct=_np.sqrt(_np.sum((sigmacc*fr)**2))/(Bif*Tfluct)
         print('Tfluct/T= '+str(Tfluct)+'+- '+str(sigmaTfluct))
     #    
  

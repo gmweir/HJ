@@ -533,7 +533,7 @@ for ii in range(nfils):
 
 
         Tfluct=_np.sqrt(2*integral/Bif)
-        sigmaTfluct=_np.sqrt(_np.sum((sigmacc*fr)**2))/(2*Bif*Tfluct)
+        sigmaTfluct=_np.sqrt(_np.sum((sigmacc*fr)**2))/(Bif*Tfluct)
 #        print('Tfluct/T= '+str(100*Tfluct)+'%+- '+str(100*sigmaTfluct)+'%')
         msg = u'Tfluct/T=%2.3f\u00B1%2.3f%%'%(100*Tfluct, 100*sigmaTfluct)
         print(msg)
@@ -688,7 +688,7 @@ _sqrtNs = _np.sqrt(2*Bvid*nfils*(tb[-1]-tb[0]))
 _sens = _np.sqrt(2*Bvid/Bif/_sqrtNs)
 
 _Tfluct=_np.sqrt(2*_integral/Bif)
-_sigmaTfluct=_np.sqrt(_np.sum((_sigmacc*fr/nfils)**2))/(2*Bif*_Tfluct)
+_sigmaTfluct=_np.sqrt(_np.sum((_sigmacc*fr/nfils)**2))/(Bif*_Tfluct)
 #        print('Tfluct/T= '+str(100*Tfluct)+'%+- '+str(100*sigmaTfluct)+'%')
 _msg = u'Tfluct/T=%2.3f\u00B1%2.3f%%'%(100*_Tfluct, 100*_sigmaTfluct)
 
