@@ -24,6 +24,8 @@ from pybaseutils.plt_utils import savefig
 from FFT.fft_analysis import butter_lowpass
 from FFT.notch_filter import iirnotch
 
+
+_plt.close("all")
 # =============================== #
 
 datafolder = _os.path.abspath(_os.path.join('..','..','..','..', 'Workshop'))
@@ -33,14 +35,13 @@ print(datafolder)
 
 cmPerGHz = 1
 Fs = 1e6
-minFreq = 25e3
+minFreq = 10e3
 #minFreq = 15e3
 #minFreq = 7.5e3
 #minFreq = 0.1e3
 fLPF=False
 f0 = False
 sepshots = False  # separate the shots into different figures
-sintest=True     # run in test mode
 
 backgroundsubtract = True  # use the method with _np.real(cc-ccbg)
 #backgroundsubtract = False  # automatically set ccbg = 0.0, no background subtraction
@@ -60,8 +61,8 @@ Bif=200e6
 # ============================================================== #
 fils = []
 freqs = []
-freq_ref = 68.0   # [GHz]
-intb = [10e3, 300e3]  # good
+freq_ref = 60.0   # [GHz]
+intb = [10e3, 100e3]  # good
 #intb = [40e3, 110e3]  # good
 bg = [400e3, 500e6]  # background for coherence subtraction - automatically selected with fallback
 
@@ -72,7 +73,22 @@ bg = [400e3, 500e6]  # background for coherence subtraction - automatically sele
 #freqs = [4.0*freq+8.0 for freq in freqs]
 ##tb=[0.15,0.25]   # background data
 #tbg = 0.25  # background
-#
+
+#04-02-18 fix 1
+#fils = ['CECE.69757','CECE.69758','CECE.69759','CECE.69760','CECE.69761','CECE.69762']
+#freqs = [13.075,     13.095,      13.115,      13.055,      13.085,      13.045] 
+#freqs = [4.0*freq+8.0 for freq in freqs]
+#tb=[0.32,0.40]   # background data
+#tbg = 0.27  # background
+
+#07-02-18 fix 1
+#fils = ['CECE.69884','CECE.69885','CECE.69886','CECE.69887','CECE.69888','CECE.69889','CECE.69890']
+#freqs = [13.075,     13.062,      13.085,      13.050,      13.037,      13.025,       13.012] 
+#freqs = [4.0*freq+8.0 for freq in freqs]
+#tb=[0.32,0.40]   # background data
+#tbg = 0.27  # background
+
+
 #tb = [0.285, 0.315]
 ##intb = [10e3, 200e3]
 #intb = [10e3, 275e3]  # good
@@ -107,7 +123,7 @@ bg = [400e3, 500e6]  # background for coherence subtraction - automatically sele
 #fils = ['CECE.65624','CECE.65625']
 #freqs = [68.3,       68.3]
 #tbg = 0.17  # background
-#tb = [0.20, 0.37]
+#tb = [0.20, 0.37] #time bounds
 ##intb = [10e3, 275e3]  # good
 ##bg = [275e3, 1e6]  # background for coherence subtraction - automatically selected with fallback
 #intb = [375e3, 500e3]  # good
@@ -115,24 +131,27 @@ bg = [400e3, 500e6]  # background for coherence subtraction - automatically sele
 ##Bvid = intb[1]
 
 #txtstr = 'jan17_fix2'
-#freq_ref = 68.0   # [GHz]
-#fils = ['CECE.65626','CECE.65627','CECE.65628','CECE.65629']
-#freqs = [68.0,        68.2,        68.1,         68.1]
-#
-#fils.extend(['CECE.65630','CECE.65631','CECE.65632','CECE.65633','CECE.65634'])
-#freqs.extend([68.15,      68.05,       67.95,        67.90,      68.125])
-#
+freq_ref = 68.0   # [GHz]
+fils = ['CECE.65626','CECE.65627','CECE.65628','CECE.65629']
+freqs = [68.0,        68.2,        68.1,         68.1]
+
+fils.extend(['CECE.65630','CECE.65631','CECE.65632','CECE.65633','CECE.65634'])
+freqs.extend([68.15,      68.05,       67.95,        67.90,      68.125])
+tb=[0.37,0.395]   # time bounds
+tbg = 0.17  # background
+
+
 #txtstr = 'jan17_fix3'
 #freq_ref = 68.0   # [GHz]
 #fils = ['CECE.65638','CECE.65639','CECE.65640','CECE.65641']
 #freqs = [68.3,       68.3,        68.3,         68.3]
 
 
-txtstr = 'Jan 27, ECH: 107 kW'
-fils = ['CECE.65947','CECE.65948','CECE.65949','CECE.65950']
-freqs = [68.3,        68.3,         68.3,       68.3]
-tbg = 0.180  # background
-tb = [0.21, 0.315]
+#txtstr = 'Jan 27, ECH: 107 kW'
+#fils = ['CECE.65947','CECE.65948','CECE.65949','CECE.65950']
+#freqs = [68.3,        68.3,         68.3,       68.3]
+#tbg = 0.180  # background
+#tb = [0.21, 0.315]
 #
 #txtstr = 'Jan. 27, ECH: 174 kW'
 #fils = ['CECE.65953','CECE.65954','CECE.65955','CECE.65956','CECE.65957','CECE.65958']
@@ -219,449 +238,279 @@ sigmaTe = []
 CC2 = []
 _Pxx, _Pyy, _Pxy = 0.0, 0.0, 0.0
 
-if sintest: nfils = 1
+
 ylims = [0,0]
 for ii in range(nfils):
-    if sintest:
-        df=1e3
-        ampRF = 1.00
-        ampIF = 1.00
-        delay_ph=-0.5*_np.pi #time delay in phase shift
-        delay_t=delay_ph/(2.0*_np.pi*(df)) #time delay in seconds
+    filn = _os.path.abspath(_os.path.join(datafolder, fils[ii]))
+    print(filn)
+    _, shotno = filn.split('.')
 
-        _np.random.seed()
+    tt, tmpRF, tmpIF = \
+        _np.loadtxt(filn, dtype=_np.float64, unpack=True, usecols=(0,1,2))
+    tt = 1e-3*tt.copy()
 
-        n_s=1201
-#        n_s=1200
-        periods=20.0
-
-    #
-        tt=_np.linspace(0,periods/df,n_s)
-        tb = [tt[0], tt[-2]] #some way or another he does not like tt[-1] in the fftanal
-#        n_s=4000001
-        fs=1/(((tt[len(tt)-1]-tt[0])/len(tt)))
-
-        tmpRF = ampRF*_np.sin(2.0*_np.pi*(df)*tt)
-#        tmpRF += 1.00*ampRF*_np.random.standard_normal( size=(tt.shape[0],) )   # there was an error here
-        tmpRF += 1.50*ampRF*_np.random.uniform( low=-1, high=1, size=(tt.shape[0],) )
-
-        tmpIF = ampIF*_np.sin(2.0*_np.pi*(df)*(tt)+delay_ph)
-#        tmpIF += 1.00*ampIF*_np.random.standard_normal( size=(tt.shape[0],) )
-#        tmpIF += 1.00*ampIF*_np.random.uniform( low=-1, high=1, size=(tt.shape[0],) )
-        tt_tb=[_np.where(tt<=tb[0])[0][0],_np.where(tt>=tb[1])[0][0]]
-        SignalTime=tt[tt_tb][1]-tt[tt_tb][0]
-
-        Navr=1
-        windowoverlap=0.5
-        nsig=len(tmpRF)
-        nwins=int(_np.floor(nsig*1.0/(Navr-Navr*windowoverlap + windowoverlap)))
-        noverlap=int(_np.ceil(nwins*windowoverlap))
-        ist=_np.arange(Navr)*(nwins-noverlap)   #Not actually using 1000 windows due to side effects?
-        freq = _np.fft.fftfreq(nwins, 1.0/fs)
-
-        #fft with sigle hanning window
-        Xfft=_np.fft.fft(_np.hanning(len(tmpRF))*tmpRF,axis=0)
-        Yfft=_np.fft.fft(_np.hanning(len(tmpRF))*tmpIF,axis=0)
-
-        Gxxd=(2.0*Xfft*_np.conj(Xfft))*((1/fs)**2*(1/SignalTime))
-        Gyyd=(2.0*Yfft*_np.conj(Yfft))*((1/fs)**2*(1/SignalTime))
-        Gxyd=(2.0*Yfft*_np.conj(Xfft))*((1/fs)**2*(1/SignalTime))
-
-        Pxx=Gxxd[0:int(_np.ceil(len(tt[tt_tb[0]:tt_tb[1]+1])/2.0))]
-        Pyy=Gyyd[0:int(_np.ceil(len(tt[tt_tb[0]:tt_tb[1]+1])/2.0))]
-        Pxy=Gxyd[0:int(_np.ceil(len(tt[tt_tb[0]:tt_tb[1]+1])/2.0))]
-
-        fr=1/SignalTime
-        fNQ=fs/2
-        freqaxis=_np.arange(0,fNQ,fr)
-        _plt.figure()
-        _plt.plot(freqaxis,Pxy)
-
-        cc=Pxy/_np.sqrt(Pxx*Pyy)
-        ccbg=_np.mean(cc[-100:])
-        _plt.figure()
-    #    _plt.plot(freqaxis,cc)
-        _plt.plot(freqaxis,cc-ccbg)
-        _plt.plot(freqaxis,_np.std(cc)*_np.ones(len(freqaxis)),'--',color='k')
-
-        f1=0e3
-        f2=20e3
-        rcc = _np.real(cc-ccbg)
-        integrand=(rcc/(1-rcc))[_np.where(freqaxis>=f1)[0][0]:_np.where(freqaxis>=f2)[0][0]]
-        integralfreqs=freqaxis[_np.where(freqaxis>=f1)[0][0]:_np.where(freqaxis>=f2)[0][0]]
-        integral=_np.trapz(integrand,integralfreqs)
-        Bvid=0.5e6
-        Bif=200e6
-        sqrtNs = _np.sqrt(2*Bvid*(tb[-1]-tb[0]))
-        sens = _np.sqrt(2*Bvid/Bif/sqrtNs)
-        Tfluct=_np.sqrt(2*integral/Bif)
-        print('Tfluct/T= '+str(Tfluct))
-
-        if not sintest:
-    
-            filn = _os.path.abspath(_os.path.join(datafolder, fils[ii]))
-            print(filn)
-            _, shotno = filn.split('.')
-    
-            tt, tmpRF, tmpIF = \
-                _np.loadtxt(filn, dtype=_np.float64, unpack=True, usecols=(0,1,2))
-            tt = 1e-3*tt.copy()
-    
-            _plt.figure("raw data")
-            _plt.plot(tt, tmpRF)
-            _plt.plot(tt, tmpIF)
-    
-    
-            if tbg>(tb[1]-tb[0]):
-                dt = tb[1]-tb[0]
-                # background signal part
-                bgRF = tmpRF[_np.where((tt>tbg-dt)*(tt<tbg))].copy()
-                bgIF = tmpIF[_np.where((tt>tbg-dt)*(tt<tbg))].copy()
-                ttbg = tt[_np.where((tt>tbg-dt)*(tt<tbg))].copy()
-            else:
-                # background signal part
-                bgRF = tmpRF[_np.where(tt<tbg)].copy()
-                bgIF = tmpIF[_np.where(tt<tbg)].copy()
-                ttbg = tt[_np.where(tt<tbg)].copy()
-            # end if
-    
-            # signal part
-            tt_tb=[_np.where(tt>=tb[0])[0][0],_np.where(tt>=tb[1])[0][0]]
-            tt=tt[tt_tb[0]:tt_tb[1]+1].copy()
-            tmpRF=tmpRF[tt_tb[0]:tt_tb[1]+1].copy()
-            tmpIF=tmpIF[tt_tb[0]:tt_tb[1]+1].copy()
-    
-            _plt.axvline(x=tt[0])
-            _plt.axvline(x=tt[-1])
-    
-            tmpRF -= _np.mean(tmpRF)
-            tmpIF -= _np.mean(tmpIF)
-            bgRF -= _np.mean(bgRF)
-            bgIF -= _np.mean(bgIF)
-            if fLPF:
-                tmpRF = _sig.filtfilt(blpf, alpf, tmpRF.copy())
-                tmpIF = _sig.filtfilt(blpf, alpf, tmpIF.copy())
-                bgRF = _sig.filtfilt(blpf, alpf, bgRF.copy())
-                bgIF = _sig.filtfilt(blpf, alpf, bgIF.copy())
-    
-            if f0:
-                # Apply a zero-phase digital filter to both signals
-                tmpRF = _sig.filtfilt(b, a, tmpRF.copy())  # padding with zeros
-                tmpIF = _sig.filtfilt(b, a, tmpIF.copy())  # padding with zeros
-                bgRF = _sig.filtfilt(b, a, bgRF.copy())  # padding with zeros
-                bgIF = _sig.filtfilt(b, a, bgIF.copy())  # padding with zeros
-    
-            if tt[1]-tt[0]!=tt[2]-tt[1]:
-                tt2=_np.linspace(tt[0],tt[-1],len(tt),endpoint=True)
-                tmpRF=_np.interp(_np.asarray(tt2,dtype=float), tt, tmpRF.copy())
-                tmpIF=_np.interp(_np.asarray(tt2,dtype=float), tt, tmpIF.copy())
-                tt=tt2.copy()
-    
-                tt2 = _np.linspace(ttbg[0], ttbg[-1], len(ttbg), endpoint=True)
-                bgRF=_np.interp(_np.asarray(tt2,dtype=float), ttbg, bgRF.copy())
-                bgIF=_np.interp(_np.asarray(tt2,dtype=float), ttbg, bgIF.copy())
-                ttbg=tt2.copy()
-            # end if
-    
-    #        fs=1/(((tt[len(tt)-1]-tt[0])/len(tt)))
-    #        SignalTime=tt[tt_tb][1]-tt[tt_tb][0]  # you've already truncated the signal into time
-            SignalTime=tt[-1]-tt[0]
-    
-            sig_anal = fftanal(tt.copy(), tmpRF.copy(), tmpIF.copy(), windowfunction='hanning',
-                              onesided=True, minFreq=minFreq, plotit=False)
-            sig_anal.fftpwelch()
-    
-            bg_anal = fftanal(ttbg.copy(), bgRF.copy(), bgIF.copy(), windowfunction='hanning',
-                              onesided=True, minFreq=minFreq, plotit=False)
-    #                          onesided=True, Navr=sig_anal.Navr, plotit=False)
-            bg_anal.fftpwelch()
-            nwins = sig_anal.nwins
-            fs = sig_anal.Fs
-            fr = fs/float(nwins)
-            Navr = sig_anal.Navr
-            freq = sig_anal.freq.copy()
-            Pxy = sig_anal.Pxy.copy()
-            Pxx = sig_anal.Pxx.copy()
-            Pyy = sig_anal.Pyy.copy()
-    
-            siglags = sig_anal.fftinfo.lags.copy()
-            sigcorrcoef = sig_anal.fftinfo.corrcoef.copy()
-
-    
-    #        #for multiple windows
-    #        nsig=len(tmpRF)
-    #        nwins=int(_np.floor(nsig*1.0/(Navr-Navr*windowoverlap + windowoverlap)))
-    #        noverlap=int(_np.ceil(nwins*windowoverlap))
-    #        ist=_np.arange(Navr)*(nwins-noverlap)   #Not actually using 1000 windows due to side effects?
-    #
-    #        # reflect so the first and last windows are captured fully
-    #        tmpRF=_np.r_[tmpRF[nwins-1:0:-1],tmpRF,tmpRF[-1:-nwins:-1]]
-    #        tmpIF=_np.r_[tmpIF[nwins-1:0:-1],tmpIF,tmpIF[-1:-nwins:-1]]  # concatenate along axis 0
-    #        nsig = tmpRF.shape[0]
-    #
-    #        bg_anal = fftanal(ttbg, bgRF, bgIF, windowfunction='hanning', windowoverlap=windowoverlap,
-    #                          onesided=True, minFreq=2*fs/nwins, plotit=False)
-    #        bg_anal.fftpwelch()
-    #
-    #        Pxxd_seg = _np.zeros((Navr, nwins), dtype=_np.complex128)
-    #        Pyyd_seg = _np.zeros((Navr, nwins), dtype=_np.complex128)
-    #        Pxyd_seg = _np.zeros((Navr, nwins), dtype=_np.complex128)
-    #
-    #        Xfft = _np.zeros((Navr, nwins), dtype=_np.complex128)
-    #        Yfft = _np.zeros((Navr, nwins), dtype=_np.complex128)
-    #
-    #        ist = ist.astype(int)
-    ##        for jj in range(Navr-1): #Not actually using 1000 windows due to side effects?
-    #        for jj in range(Navr): #Not actually using 1000 windows due to side effects?
-    #            istart=ist[jj]
-    #            iend=ist[jj]+nwins
-    #
-    #            xtemp=tmpRF[istart:iend]
-    #            ytemp=tmpIF[istart:iend]
-    #            win=_np.hanning(len(xtemp))
-    #            xtemp=xtemp*win
-    #            ytemp=ytemp*win
-    #
-    #
-    #            Xfft[jj,:nwins]=_np.fft.fft(xtemp,nwins,axis=0)
-    #            Yfft[jj,:nwins]=_np.fft.fft(ytemp,nwins,axis=0)
-    #
-    #        fr=1/(tt[iend-1]-tt[istart])
-    #        #Calculate Power spectral denisty and Cross power spectral density per segment
-    #        Pxxd_seg[:Navr,:nwins]=(Xfft*_np.conj(Xfft))
-    #        Pyyd_seg[:Navr,:nwins]=(Yfft*_np.conj(Yfft))
-    #        Pxyd_seg[:Navr,:nwins]=(Yfft*_np.conj(Xfft))
-    #
-    #        freq = _np.fft.fftfreq(nwins, 1.0/fs)
-    #        Nnyquist = nwins//2
-    #
-    #        #take one sided frequency band and double the energy as it was split over
-    #        #total frequency band
-    #        freq = freq[:Nnyquist]  # [Hz]
-    #        Pxx_seg = Pxxd_seg[:, :Nnyquist]
-    #        Pyy_seg = Pyyd_seg[:, :Nnyquist]
-    #        Pxy_seg = Pxyd_seg[:, :Nnyquist]
-    #
-    #        Pxx_seg[:, 1:-1] = 2*Pxx_seg[:, 1:-1]  # [V^2/Hz],
-    #        Pyy_seg[:, 1:-1] = 2*Pyy_seg[:, 1:-1]  # [V^2/Hz],
-    #        Pxy_seg[:, 1:-1] = 2*Pxy_seg[:, 1:-1]  # [V^2/Hz],
-    #        if nwins%2:  # Odd
-    #            Pxx_seg[:, -1] = 2*Pxx_seg[:, -1]
-    #            Pyy_seg[:, -1] = 2*Pyy_seg[:, -1]
-    #            Pxy_seg[:, -1] = 2*Pxy_seg[:, -1]
-    #        # end if
-    #        # TODO:! NOTE TO STEF.  An important term here:
-    #        # if we were to fourier transform back to temporal space using the full
-    #        # complex ifft ... the result would be the "analytic signal"
-    #        # Fourier transforming using the irfft (real valued fft) (after unscaling by 0.5)
-    #        # would give the input signal
-    #
-    #        #Normalise to RMS by removing gain
-    #        S1=_np.sum(win)
-    #        Pxx_seg = Pxx_seg/(S1**2)
-    #        Pyy_seg = Pyy_seg/(S1**2)
-    #        Pxy_seg = Pxy_seg/(S1**2)
-    #
-    #        #Normalise to true value
-    #        S2=_np.sum(win**2)
-    #        Pxx_seg = Pxx_seg/(fs*S2/S1**2)
-    #        Pyy_seg = Pyy_seg/(fs*S2/S1**2)
-    #        Pxy_seg = Pxy_seg/(fs*S2/S1**2)
-    #
-    #        #Average the different windows
-    #        Pxx=_np.mean(Pxx_seg, axis=0)
-    #        Pyy=_np.mean(Pyy_seg, axis=0)
-    #        Pxy=_np.mean(Pxy_seg, axis=0)
-    
-    #        # divide by nearly zero causes explosion in coherence
-    #        Pxx = _np.where(10*_np.log10(_np.abs(Pxx))<-90, 10.0**(-90/10), Pxx)
-    #        Pyy = _np.where(10*_np.log10(_np.abs(Pyy))<-90, 10.0**(-90/10), Pyy)
-    #        Pxy = _np.where(10*_np.log10(_np.abs(Pxy))<-90, 10.0**(-120/10), Pxy)
-    
-            # =================== #
-
-        MaxFreq=fs/2.
-        MinFreq=2.0*fs/nwins #2*fr
-
-        print('Maximal frequency: '+str(MaxFreq)+' Hz')
-        print('Minimal frequency: '+str(MinFreq)+' Hz')
+    _plt.figure("raw data")
+    _plt.plot(tt, tmpRF)
+    _plt.plot(tt, tmpIF)
 
 
-        # integration frequencies
-        f1=max((MinFreq, intb[0]))
-        f2=min((MaxFreq, intb[1]))
-        if1 = _np.where(freq>=f1)[0]
-        if2 = _np.where(freq>=f2)[0]
-        if1 = 0 if len(if1) == 0 else if1[0]
-        if2 = len(freq) if len(if2) == 0 else if2[0]
-        ifreqs = _np.asarray(range(if1, if2), dtype=int)
+    if tbg>(tb[1]-tb[0]):
+        dt = tb[1]-tb[0]
+        # background signal part
+        bgRF = tmpRF[_np.where((tt>tbg-dt)*(tt<tbg))].copy()
+        bgIF = tmpIF[_np.where((tt>tbg-dt)*(tt<tbg))].copy()
+        ttbg = tt[_np.where((tt>tbg-dt)*(tt<tbg))].copy()
+    else:
+        # background signal part
+        bgRF = tmpRF[_np.where(tt<tbg)].copy()
+        bgIF = tmpIF[_np.where(tt<tbg)].copy()
+        ttbg = tt[_np.where(tt<tbg)].copy()
+    # end if
 
-        # =================== #
+    # signal part
+    tt_tb=[_np.where(tt>=tb[0])[0][0],_np.where(tt>=tb[1])[0][0]]
+    tt=tt[tt_tb[0]:tt_tb[1]+1].copy()
+    tmpRF=tmpRF[tt_tb[0]:tt_tb[1]+1].copy()
+    tmpIF=tmpIF[tt_tb[0]:tt_tb[1]+1].copy()
 
-        cc=Pxy/_np.sqrt(Pxx.real*Pyy.real)
+    _plt.axvline(x=tt[0])
+    _plt.axvline(x=tt[-1])
 
-        if backgroundsubtract:
-            if oldstylesubtract:
-                # background subtraction indices / frequencies
+    tmpRF -= _np.mean(tmpRF)
+    tmpIF -= _np.mean(tmpIF)
+    bgRF -= _np.mean(bgRF)
+    bgIF -= _np.mean(bgIF)
+    if fLPF:
+        tmpRF = _sig.filtfilt(blpf, alpf, tmpRF.copy())
+        tmpIF = _sig.filtfilt(blpf, alpf, tmpIF.copy())
+        bgRF = _sig.filtfilt(blpf, alpf, bgRF.copy())
+        bgIF = _sig.filtfilt(blpf, alpf, bgIF.copy())
+
+    if f0:
+        # Apply a zero-phase digital filter to both signals
+        tmpRF = _sig.filtfilt(b, a, tmpRF.copy())  # padding with zeros
+        tmpIF = _sig.filtfilt(b, a, tmpIF.copy())  # padding with zeros
+        bgRF = _sig.filtfilt(b, a, bgRF.copy())  # padding with zeros
+        bgIF = _sig.filtfilt(b, a, bgIF.copy())  # padding with zeros
+
+    if tt[1]-tt[0]!=tt[2]-tt[1]:
+        tt2=_np.linspace(tt[0],tt[-1],len(tt),endpoint=True)
+        tmpRF=_np.interp(_np.asarray(tt2,dtype=float), tt, tmpRF.copy())
+        tmpIF=_np.interp(_np.asarray(tt2,dtype=float), tt, tmpIF.copy())
+        tt=tt2.copy()
+
+        tt2 = _np.linspace(ttbg[0], ttbg[-1], len(ttbg), endpoint=True)
+        bgRF=_np.interp(_np.asarray(tt2,dtype=float), ttbg, bgRF.copy())
+        bgIF=_np.interp(_np.asarray(tt2,dtype=float), ttbg, bgIF.copy())
+        ttbg=tt2.copy()
+    # end if
+
+#        fs=1/(((tt[len(tt)-1]-tt[0])/len(tt)))
+#        SignalTime=tt[tt_tb][1]-tt[tt_tb][0]  # you've already truncated the signal into time
+    SignalTime=tt[-1]-tt[0]
+
+    sig_anal = fftanal(tt.copy(), tmpRF.copy(), tmpIF.copy(), windowfunction='hanning',
+                      onesided=True, minFreq=minFreq, plotit=False)
+    sig_anal.fftpwelch()
+
+    bg_anal = fftanal(ttbg.copy(), bgRF.copy(), bgIF.copy(), windowfunction='hanning',
+                      onesided=True, minFreq=minFreq, plotit=False)
+#                          onesided=True, Navr=sig_anal.Navr, plotit=False)
+    bg_anal.fftpwelch()
+    nwins = sig_anal.nwins
+    fs = sig_anal.Fs
+    fr = fs/float(nwins)
+    Navr = sig_anal.Navr
+    freq = sig_anal.freq.copy()
+    Pxy = sig_anal.Pxy.copy()
+    Pxx = sig_anal.Pxx.copy()
+    Pyy = sig_anal.Pyy.copy()
+
+    siglags = sig_anal.fftinfo.lags.copy()
+    sigcorrcoef = sig_anal.fftinfo.corrcoef.copy()
+
+    MaxFreq=fs/2.
+    MinFreq=2.0*fs/nwins #2*fr
+
+    print('Maximal frequency: '+str(MaxFreq)+' Hz')
+    print('Minimal frequency: '+str(MinFreq)+' Hz')
+
+
+    # integration frequencies
+    f1=max((MinFreq, intb[0]))
+    f2=min((MaxFreq, intb[1]))
+    if1 = _np.where(freq>=f1)[0]
+    if2 = _np.where(freq>=f2)[0]
+    if1 = 0 if len(if1) == 0 else if1[0]
+    if2 = len(freq) if len(if2) == 0 else if2[0]
+    ifreqs = _np.asarray(range(if1, if2), dtype=int)
+
+    # =================== #
+
+    cc=Pxy/_np.sqrt(Pxx.real*Pyy.real)
+
+    if backgroundsubtract:
+        if oldstylesubtract:
+            # background subtraction indices / frequencies
+            ibg1 = _np.where(freq>=min((MaxFreq,bg[0])))[0]
+            ibg2 = _np.where(freq>=bg[1])[0]
+            ibg1 = 0 if len(ibg1) == 0 else ibg1[0]
+            ibg2 = -1 if len(ibg2) == 0 else ibg2[0]
+
+#            ibg1 = _np.where(10*_np.log10(_np.abs(Pxy))<-85)[0][0]
+#            ibg2 = _np.where(10*_np.log10(_np.abs(Pxy))<-85)[0][-1]
+            if freq[ibg1]<f2:
+                df = int( (min((bg[1],freq[-1]))-bg[0])//(freq[1]-freq[0]))
                 ibg1 = _np.where(freq>=min((MaxFreq,bg[0])))[0]
-                ibg2 = _np.where(freq>=bg[1])[0]
-                ibg1 = 0 if len(ibg1) == 0 else ibg1[0]
-                ibg2 = -1 if len(ibg2) == 0 else ibg2[0]
-
-    #            ibg1 = _np.where(10*_np.log10(_np.abs(Pxy))<-85)[0][0]
-    #            ibg2 = _np.where(10*_np.log10(_np.abs(Pxy))<-85)[0][-1]
-                if freq[ibg1]<f2:
-                    df = int( (min((bg[1],freq[-1]))-bg[0])//(freq[1]-freq[0]))
-                    ibg1 = _np.where(freq>=min((MaxFreq,bg[0])))[0]
-                    ibg1 = ibg2-df if len(ibg1)==0 else ibg1[0]
-                # end if
-                backgroundfreqs=freq[ibg1:ibg2]
-
-                # if we assume that Gnoise (Gxy shared noise can be represented as background as in Creely, et al)
-    ##            ccbg=_np.mean(cc[-100:])
-                ccbg=_np.mean(cc[ibg1:ibg2])
-    ##            ccbg=cc[ibg1:ibg2].min()
-    ##            ccbg = cc.min()
-    #            Pxy_tmp, Pxx_tmp, Pyy_tmp = (_np.trapz(bg_anal.Pxy[ibg1:ibg2]),
-    #                                         _np.trapz(bg_anal.Pxx[ibg1:ibg2]),
-    #                                         _np.trapz(bg_anal.Pyy[ibg1:ibg2]))
-    #            ccbg = Pxy_tmp /_np.sqrt(Pxx_tmp.real*Pyy_tmp.real)
-
-            # =============================================== #
-            else:
-                # If we assume that the common noise between the channels, Gnoise
-                # can be represented by the background spectra (instrument function),
-                # possibly scaled to the signal
-                bglags = bg_anal.fftinfo.lags.copy()
-                bgcorrcoef = bg_anal.fftinfo.corrcoef.copy()
-                if keepphase:
-                    fi = _np.arctan2(Pxy.real, Pxy.imag).copy()
-                    Amp = _np.abs(Pxy).copy()
-                    Amp_bg = _np.interp(freq, bg_anal.freq, _np.abs(bg_anal.Pxy))
-                    Pxy = (Amp-Amp_bg)*_np.exp(1j*fi)   # preserve the original phase
-                else:
-                    # assume the magnitude of the complex part is small when it needs to be
-                    Pxy = Pxy.copy() - _np.interp(freq, bg_anal.freq, bg_anal.Pxy) # don't worry about maintaining phase, complex amplitude is small
-                # end if
-                Pxy_tmp = 0.0
-                Pxx_tmp = 0.0
-                Pyy_tmp = 0.0
-    #
-    #            # Scale the background common noise spectra to the magnitude of the signal
-    ##            imax = -1
-    ##            imax = _np.argmax(_np.abs(bg_anal.Pxy))
-    ##            Ascale = _np.interp(bg_anal.freq[imax], freq, _np.abs(Amp))/_np.abs(bg_anal.Pxy[imax])
-    ##            Pxy_tmp, Pxx_tmp, Pyy_tmp = Ascale*Pxy_tmp, Ascale*Pxx_tmp, Ascale*Pyy_tmp
-
-                # Calculate the coherence after background subtraction
-                # note that if Gnoise is Pxy_noise (background), and we keep Pxx_tmp=0, Pyy_tmp = 0
-                # then this is exactly equation A10 from Creely, et. al. with a more
-                # reasonable estimate for the common noise.
-                cc = (Pxy-Pxy_tmp)/_np.sqrt((Pxx-Pxx_tmp).real*(Pyy-Pyy_tmp).real)
-    ##            ccbg = _np.interp(freq, bg_anal.freq, ccbg)
-                ccbg = 0.0*_np.ones_like(cc)
+                ibg1 = ibg2-df if len(ibg1)==0 else ibg1[0]
             # end if
-            # =============================================== #
+            backgroundfreqs=freq[ibg1:ibg2]
+
+            # if we assume that Gnoise (Gxy shared noise can be represented as background as in Creely, et al)
+##            ccbg=_np.mean(cc[-100:])
+            ccbg=_np.mean(cc[ibg1:ibg2])
+##            ccbg=cc[ibg1:ibg2].min()
+##            ccbg = cc.min()
+#            Pxy_tmp, Pxx_tmp, Pyy_tmp = (_np.trapz(bg_anal.Pxy[ibg1:ibg2]),
+#                                         _np.trapz(bg_anal.Pxx[ibg1:ibg2]),
+#                                         _np.trapz(bg_anal.Pyy[ibg1:ibg2]))
+#            ccbg = Pxy_tmp /_np.sqrt(Pxx_tmp.real*Pyy_tmp.real)
+
+        # =============================================== #
         else:
-            ccbg = 0.0
+            # If we assume that the common noise between the channels, Gnoise
+            # can be represented by the background spectra (instrument function),
+            # possibly scaled to the signal
+            bglags = bg_anal.fftinfo.lags.copy()
+            bgcorrcoef = bg_anal.fftinfo.corrcoef.copy()
+            if keepphase:
+                fi = _np.arctan2(Pxy.real, Pxy.imag).copy()
+                Amp = _np.abs(Pxy).copy()
+                Amp_bg = _np.interp(freq, bg_anal.freq, _np.abs(bg_anal.Pxy))
+                Pxy = (Amp-Amp_bg)*_np.exp(1j*fi)   # preserve the original phase
+            else:
+                # assume the magnitude of the complex part is small when it needs to be
+                Pxy = Pxy.copy() - _np.interp(freq, bg_anal.freq, bg_anal.Pxy) # don't worry about maintaining phase, complex amplitude is small
+            # end if
+            Pxy_tmp = 0.0
+            Pxx_tmp = 0.0
+            Pyy_tmp = 0.0
+#
+#            # Scale the background common noise spectra to the magnitude of the signal
+##            imax = -1
+##            imax = _np.argmax(_np.abs(bg_anal.Pxy))
+##            Ascale = _np.interp(bg_anal.freq[imax], freq, _np.abs(Amp))/_np.abs(bg_anal.Pxy[imax])
+##            Pxy_tmp, Pxx_tmp, Pyy_tmp = Ascale*Pxy_tmp, Ascale*Pxx_tmp, Ascale*Pyy_tmp
+
+            # Calculate the coherence after background subtraction
+            # note that if Gnoise is Pxy_noise (background), and we keep Pxx_tmp=0, Pyy_tmp = 0
+            # then this is exactly equation A10 from Creely, et. al. with a more
+            # reasonable estimate for the common noise.
+            cc = (Pxy-Pxy_tmp)/_np.sqrt((Pxx-Pxx_tmp).real*(Pyy-Pyy_tmp).real)
+##            ccbg = _np.interp(freq, bg_anal.freq, ccbg)
+            ccbg = 0.0*_np.ones_like(cc)
         # end if
-        Rxx = Pxx.copy()
-        Ryy = Pyy.copy()
-        Rxy = Pxy.copy()
-        Rxx[1:-1, ...] *= 0.5
-        Ryy[1:-1, ...] *= 0.5
-        Rxy[1:-1, ...] *= 0.5
-        if sig_anal.nwins%2:
-            Rxx[-1, ...] *= 0.5
-            Ryy[-1, ...] *= 0.5
-            Rxy[-1, ...] *= 0.5
-        Rxx = _np.fft.irfft(Rxx, n=sig_anal.nwins, axis=0)
-        Ryy = _np.fft.irfft(Ryy, n=sig_anal.nwins, axis=0)
-        Rxy = _np.fft.irfft(Rxy, n=sig_anal.nwins, axis=0)
-        Rxx *= _np.sqrt(sig_anal.nwins)
-        Ryy *= _np.sqrt(sig_anal.nwins)
-        Rxy *= _np.sqrt(sig_anal.nwins)
+        # =============================================== #
+    else:
+        ccbg = 0.0
+    # end if
+    Rxx = Pxx.copy()
+    Ryy = Pyy.copy()
+    Rxy = Pxy.copy()
+    Rxx[1:-1, ...] *= 0.5
+    Ryy[1:-1, ...] *= 0.5
+    Rxy[1:-1, ...] *= 0.5
+    if sig_anal.nwins%2:
+        Rxx[-1, ...] *= 0.5
+        Ryy[-1, ...] *= 0.5
+        Rxy[-1, ...] *= 0.5
+    Rxx = _np.fft.irfft(Rxx, n=sig_anal.nwins, axis=0)
+    Ryy = _np.fft.irfft(Ryy, n=sig_anal.nwins, axis=0)
+    Rxy = _np.fft.irfft(Rxy, n=sig_anal.nwins, axis=0)
+    Rxx *= _np.sqrt(sig_anal.nwins)
+    Ryy *= _np.sqrt(sig_anal.nwins)
+    Rxy *= _np.sqrt(sig_anal.nwins)
 
-        # Calculate the normalized auto- and cross-correlations
-        Ex = Rxx[0, ...].copy()    # power in the x-spectrum, int( |u(f)|^2, df)
-        Ey = Ryy[0, ...].copy()    # power in the y-spectrum, int( |v(f)|^2, df)
+    # Calculate the normalized auto- and cross-correlations
+    Ex = Rxx[0, ...].copy()    # power in the x-spectrum, int( |u(f)|^2, df)
+    Ey = Ryy[0, ...].copy()    # power in the y-spectrum, int( |v(f)|^2, df)
 
-        Rxx = _np.fft.fftshift(Rxx, axes=0)
-        Ryy = _np.fft.fftshift(Ryy, axes=0)
-        Rxy = _np.fft.fftshift(Rxy, axes=0)
+    Rxx = _np.fft.fftshift(Rxx, axes=0)
+    Ryy = _np.fft.fftshift(Ryy, axes=0)
+    Rxy = _np.fft.fftshift(Rxy, axes=0)
 
-        Rxx /= Ex
-        Ryy /= Ey
-        corrcoef = Rxy/_np.sqrt(Ex*Ey)
-        lags = (_np.asarray(range(1, sig_anal.nwins+1), dtype=int)-sig_anal.Nnyquist)/sig_anal.Fs
+    Rxx /= Ex
+    Ryy /= Ey
+    corrcoef = Rxy/_np.sqrt(Ex*Ey)
+    lags = (_np.asarray(range(1, sig_anal.nwins+1), dtype=int)-sig_anal.Nnyquist)/sig_anal.Fs
 
-        _plt.figure("Correlation Coefficient")
-        if backgroundsubtract and not oldstylesubtract: _plt.subplot(2,1,1)
-        _plt.plot(1e6*siglags, sigcorrcoef, '-')
+    _plt.figure("Correlation Coefficient")
+    if backgroundsubtract and not oldstylesubtract: _plt.subplot(2,1,1)
+    _plt.plot(1e6*siglags, sigcorrcoef, '-')
+    _plt.ylabel(r'$\rho_{x,y}$')
+    _plt.title('Correlation Coefficient')
+    if backgroundsubtract and not oldstylesubtract:  
+        _plt.plot(1e6*bglags, bgcorrcoef, 'k--')
+        _plt.subplot(2,1,2)
+        _plt.plot(1e6*lags, corrcoef, '-')
+        _plt.xlabel("lags [us]")
         _plt.ylabel(r'$\rho_{x,y}$')
-        _plt.title('Signal')
-        if backgroundsubtract and not oldstylesubtract:  
-            _plt.plot(1e6*bglags, bgcorrcoef, 'k--')
-            _plt.subplot(2,1,2)
-            _plt.plot(1e6*lags, corrcoef, '-')
-            _plt.xlabel("lags [us]")
-            _plt.ylabel(r'$\rho_{x,y}$')
-            _plt.title('background subtracted')
+        _plt.title('background subtracted')
 
-        # ======================== #
+    # ======================== #
 
-        sigmacc=_np.sqrt((1-_np.abs(cc)**2)**2/(2*Navr))
-        rcc = _np.real(cc-ccbg)    # the real part is for creating an RMS
+    sigmacc=_np.sqrt((1-_np.abs(cc)**2)**2/(2*Navr))
+    rcc = _np.real(cc-ccbg)    # the real part is for creating an RMS
 #        rcc = _np.abs(cc-ccbg)    # we already have an RMS, but whatever
-        integrand=(rcc/(1.0-rcc))[ifreqs]
-        integralfreqs=freq[ifreqs]
-        integral=_np.trapz(integrand,integralfreqs)
+    integrand=(rcc/(1.0-rcc))[ifreqs]
+    integralfreqs=freq[ifreqs]
+    integral=_np.trapz(integrand,integralfreqs)
 #        integral *= Bvid/(integralfreqs[-1]-integralfreqs[0])
-        sqrtNs = _np.sqrt(2*Bvid*(tb[-1]-tb[0]))
-        sens = _np.sqrt(2*Bvid/Bif/sqrtNs)
+    sqrtNs = _np.sqrt(2*Bvid*(tb[-1]-tb[0]))
+    sens = _np.sqrt(2*Bvid/Bif/sqrtNs)
 
 
-        Tfluct=_np.sqrt(2*integral/Bif)
+    Tfluct=_np.sqrt(2*integral/Bif)
 
 
 #        sigmaTfluct=_np.sqrt(_np.sum((sigmacc*fr)**2))/(2*Bif*Tfluct)
 
-        sigmaTfluct=_np.sqrt(_np.sum((sigmacc*fr)**2))/(Bif*Tfluct)
+    sigmaTfluct=_np.sqrt(_np.sum((sigmacc*fr)**2))/(Bif*Tfluct)
 #        print('Tfluct/T= '+str(100*Tfluct)+'%+- '+str(100*sigmaTfluct)+'%')
-        msg = u'Tfluct/T=%2.3f\u00B1%2.3f%%'%(100*Tfluct, 100*sigmaTfluct)
-        print(msg)
-        Tefluct.append(Tfluct)
-        sigmaTe.append(sigmaTfluct)
+    msg = u'Tfluct/T=%2.3f\u00B1%2.3f%%'%(100*Tfluct, 100*sigmaTfluct)
+    print(msg)
+    Tefluct.append(Tfluct)
+    sigmaTe.append(sigmaTfluct)
 
-        # ============================================ #
+    # ============================================ #
 
-        if sepshots:
-            _plt.figure("Pxy.%s"%(shotno,))
-        else:
-            _plt.figure("Pxy")
-        # end if
-        _ax1 = _plt.subplot(3,1,1)
-        _ax2 = _plt.subplot(3,1,2, sharex=_ax1)
-        _ax3 = _plt.subplot(3,1,3, sharex=_ax1)
+    if sepshots:
+        _plt.figure("Pxy.%s"%(shotno,))
+    else:
+        _plt.figure("Pxy")
+    # end if
+    _ax1 = _plt.subplot(3,1,1)
+    _ax2 = _plt.subplot(3,1,2, sharex=_ax1)
+    _ax3 = _plt.subplot(3,1,3, sharex=_ax1)
 #        _ax1.plot(1e-3*freq,_np.abs(Pxy))
 #        _ax1.ylabel(r'P$_{xy}$ [V$^2$/Hz]')
-        _ax1.plot(1e-3*freq,10*_np.log10(_np.abs(Pxy)))
-        if backgroundsubtract and not oldstylesubtract:  _ax1.plot(1e-3*bg_anal.freq,10*_np.log10(_np.abs(bg_anal.Pxy)), 'k--')
-        _ax1.set_ylabel(r'P$_{xy}$ [dB/Hz]')
-        _ax2.plot(1e-3*freq,10*_np.log10(_np.abs(Pxx)))
-        if backgroundsubtract and not oldstylesubtract:  _ax2.plot(1e-3*bg_anal.freq,10*_np.log10(_np.abs(bg_anal.Pxx)), 'k--')
-        _ax2.set_ylabel(r'P$_{xx}$ [dB/Hz]')
-        _ax3.plot(1e-3*freq,10*_np.log10(_np.abs(Pyy)))
-        if backgroundsubtract and not oldstylesubtract:  _ax3.plot(1e-3*bg_anal.freq,10*_np.log10(_np.abs(bg_anal.Pyy)), 'k--')
-        _ax3.set_ylabel(r'P$_{yy}$ [dB/Hz]')
-        _ax3.set_xlabel('f [KHz]')
-        _ylims = _ax1.get_ylim()
-        _ax1.axvline(x=1e-3*freq[ifreqs[0]], ymin=_ylims[0],
-                     ymax=10*_np.log10(_np.abs(Pxy))[ifreqs[0]]/_ylims[1],
-                     linewidth=0.5, linestyle='--', color='black')
-        _ax1.axvline(x=1e-3*freq[ifreqs[-1]], ymin=_ylims[0],
-                     ymax=10*_np.log10(_np.abs(Pxy))[ifreqs[-1]]/_ylims[1],
-                     linewidth=0.5, linestyle='--', color='black')
+    _ax1.plot(1e-3*freq,10*_np.log10(_np.abs(Pxy)))
+    if backgroundsubtract and not oldstylesubtract:  _ax1.plot(1e-3*bg_anal.freq,10*_np.log10(_np.abs(bg_anal.Pxy)), 'k--')
+    _ax1.set_ylabel(r'P$_{xy}$ [dB/Hz]')
+    _ax2.plot(1e-3*freq,10*_np.log10(_np.abs(Pxx)))
+    if backgroundsubtract and not oldstylesubtract:  _ax2.plot(1e-3*bg_anal.freq,10*_np.log10(_np.abs(bg_anal.Pxx)), 'k--')
+    _ax2.set_ylabel(r'P$_{xx}$ [dB/Hz]')
+    _ax3.plot(1e-3*freq,10*_np.log10(_np.abs(Pyy)))
+    if backgroundsubtract and not oldstylesubtract:  _ax3.plot(1e-3*bg_anal.freq,10*_np.log10(_np.abs(bg_anal.Pyy)), 'k--')
+    _ax3.set_ylabel(r'P$_{yy}$ [dB/Hz]')
+    _ax3.set_xlabel('f [KHz]')
+    _ylims = _ax1.get_ylim()
+    _ax1.axvline(x=1e-3*freq[ifreqs[0]], ymin=_ylims[0],
+                 ymax=10*_np.log10(_np.abs(Pxy))[ifreqs[0]]/_ylims[1],
+                 linewidth=0.5, linestyle='--', color='black')
+    _ax1.axvline(x=1e-3*freq[ifreqs[-1]], ymin=_ylims[0],
+                 ymax=10*_np.log10(_np.abs(Pxy))[ifreqs[-1]]/_ylims[1],
+                 linewidth=0.5, linestyle='--', color='black')
 #        if backgroundsubtract:
 #            _ax1.axvline(x=1e-3*freq[ibg1], ymin=_ylims[0],
 #                         ymax=10*_np.log10(_np.abs(Pxy))[ifreqs[0]]/_ylims[1],
@@ -671,84 +520,83 @@ for ii in range(nfils):
 #                         linewidth=0.5, linestyle='--', color='red')
 #        # end if
 
-        # ============================================ #
+    # ============================================ #
 
-        if sepshots:
-            _plt.figure("Cxy2.%s"%(shotno,))
-        else:
-            _plt.figure("Cxy2")
-        # end if
-        _plt.plot(1e-3*freq, _np.abs(cc))
+    if sepshots:
+        _plt.figure("Cxy2.%s"%(shotno,))
+    else:
+        _plt.figure("Cxy2")
+    # end if
+    _plt.plot(1e-3*freq, _np.abs(cc))
 #        _plt.plot(1e-3*bg_anal.freq,_np.abs(bg_anal.Cxy), 'k--')
-        _plt.axhline(y=1.0/_np.sqrt(Navr), linestyle='--')
-        _plt.xlabel('f [KHz]')
-        _plt.ylabel(r'|$\gamma$|')
-        _plt.title('RMS Coherence')
+    _plt.axhline(y=1.0/_np.sqrt(Navr), linestyle='--')
+    _plt.xlabel('f [KHz]')
+    _plt.ylabel(r'|$\gamma$|')
+    _plt.title('RMS Coherence')
 
-        if sepshots:
-            _plt.figure("Cxy.%s"%(shotno,))
-        else:
-            _plt.figure("Cxy")
-        # end if
-    #    _plt.plot(freq,cc)
-        
-        _plt.plot(1e-3*freq,rcc)
-        _plt.plot(1e-3*freq,sigmacc,'--',color='red')
-        if sepshots:
-            ylims[1] = _plt.ylim()[1]
-        else:
-            ylims[1] = max((ylims[1], _plt.ylim()[1]))
-        # end if
+    if sepshots:
+        _plt.figure("Cxy.%s"%(shotno,))
+    else:
+        _plt.figure("Cxy")
+    # end if
+#    _plt.plot(freq,cc)
+    
+    _plt.plot(1e-3*freq,rcc)
+    _plt.plot(1e-3*freq,sigmacc,'--',color='red')
+    if sepshots:
+        ylims[1] = _plt.ylim()[1]
+    else:
+        ylims[1] = max((ylims[1], _plt.ylim()[1]))
+    # end if
 
-        _plt.ylim(tuple(ylims))
-        _plt.axvline(x=1e-3*freq[ifreqs[0]], ymin=0, ymax=rcc[ifreqs[0]]/ylims[1],
-                     linewidth=0.5, linestyle='--', color='black')
-        _plt.axvline(x=1e-3*freq[ifreqs[-1]], ymin=0, ymax=rcc[ifreqs[-1]]/ylims[1],
-                     linewidth=0.5, linestyle='--', color='black')
+    _plt.ylim(tuple(ylims))
+    _plt.axvline(x=1e-3*freq[ifreqs[0]], ymin=0, ymax=rcc[ifreqs[0]]/ylims[1],
+                 linewidth=0.5, linestyle='--', color='black')
+    _plt.axvline(x=1e-3*freq[ifreqs[-1]], ymin=0, ymax=rcc[ifreqs[-1]]/ylims[1],
+                 linewidth=0.5, linestyle='--', color='black')
 #        if backgroundsubtract:
 #            _plt.axvline(x=1e-3*freq[ibg1], ymin=0, ymax=sigmacc[ifreqs[0]]/ylims[1],
 #                         linewidth=0.5, linestyle='--', color='red')
 #            _plt.axvline(x=1e-3*freq[ibg2], ymin=0, ymax=sigmacc[ifreqs[-1]]/ylims[1],
 #                         linewidth=0.5, linestyle='--', color='red')
 #        # end if
-        _plt.xlabel('f [KHz]')
-        _plt.ylabel(r'$\gamma_r-\gamma_{bg}$')
+    _plt.xlabel('f [KHz]')
+    _plt.ylabel(r'$\gamma_r-\gamma_{bg}$')
 
-        msg = r'$\tilde{T}_e/<T_e>$=%2.3f'%(100*Tfluct,)+'\u00B1'+'%2.3f%%'%(100*sigmaTfluct,)
+    msg = r'$\tilde{T}_e/<T_e>$=%2.3f'%(100*Tfluct,)+'\u00B1'+'%2.3f%%'%(100*sigmaTfluct,)
 #        msg = r'$\tilde{T}_e/<T_e>$=%2.3f\u00B1%2.3f%%'%(100*Tfluct,100*sigmaTfluct,)
-        _plt.text(x=1e-3*0.8*freq[ifreqs[-1]], y=0.8*rcc[ifreqs].max(), s=msg)
+    _plt.text(x=1e-3*0.8*freq[ifreqs[-1]], y=0.8*rcc[ifreqs].max(), s=msg)
 
-        # ============================================ #
+    # ============================================ #
 
 #        if sepshots:
-        if 1:
-            cc2i = (_np.trapz(Pxy[ifreqs],integralfreqs)
-                / _np.sqrt(_np.trapz(_np.abs(Pxx[ifreqs]),integralfreqs)*_np.trapz(_np.abs(Pyy[ifreqs]),integralfreqs)))
+    if 1:
+        cc2i = (_np.trapz(Pxy[ifreqs],integralfreqs)
+            / _np.sqrt(_np.trapz(_np.abs(Pxx[ifreqs]),integralfreqs)*_np.trapz(_np.abs(Pyy[ifreqs]),integralfreqs)))
 
 #            CC2.append(cc2i-ccbg)
-            CC2.append(cc2i)
-        # end if
+        CC2.append(cc2i)
+    # end if
 
-        # ============================================ #
+    # ============================================ #
 
 #        m_prev =  _np.copy(_Pxy)
-        _Pxy += (Pxy.copy() - _Pxy) / (ii+1)
+    _Pxy += (Pxy.copy() - _Pxy) / (ii+1)
 #        _Pxy_var += (Pxy.copy() - _Pxy) * (IRfft.Pxy - m_prev)
 
 #        m_prev = _np.copy(_Pxx)
-        _Pxx += (Pxx.copy() - _Pxx) / (ii+1)
+    _Pxx += (Pxx.copy() - _Pxx) / (ii+1)
 #        Pxx_var += (Pxx.copy() - _Pxx) * (IRfft.Pxx - m_prev)
 
 #        m_prev = _np.copy(_Pyy)
-        _Pyy += (Pyy.copy() - _Pyy) / (ii+1)
+    _Pyy += (Pyy.copy() - _Pyy) / (ii+1)
 #        Pyy_var += (IRfft.Pyy - Pyy_avg) * (IRfft.Pyy - m_prev)
-    # end if test
+# end if test
 # end if
 
 #if sepshots:
-if not sintest and 1:
+if 1:
     Tefluct = _np.asarray(Tefluct, dtype=_np.float64)
-    sigmaTe = _np.asarray(sigmaTe, dtype=_np.float64)
     CC2 = _np.asarray(CC2, dtype=_np.complex128)
 
     _plt.figure('RMS Coherence')
@@ -760,6 +608,7 @@ if not sintest and 1:
 
     _plt.figure('Tfluct')
     _plt.errorbar(freqs, Tefluct, yerr=sigmaTe, fmt='o')
+    _plt.axhline(sens, linestyle='--')
     _plt.xlabel('freq [GHz]')
     _plt.ylabel(r'$\tilde{T}_e/<T_e>$')
     _plt.draw()
