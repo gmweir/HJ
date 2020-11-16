@@ -19,13 +19,16 @@ from scipy import signal as _sig
 from FFT.fft_analysis import butter_lowpass
 from FFT.notch_filter import iirnotch
 
+DEBUG = True
+
 # =============================================== #
 
 # datafolder = _os.path.abspath(_os.path.join('..', 'bin'))
 #datafolder = _os.path.abspath( _os.path.join( '/', 'Volumes', 'NawName','HeliotronJ', 'DATA' ) )
 #datafolder = _os.path.abspath( _os.path.join('G:/', 'ownCloud','HeliotronJ','DATA' ) )
 # datafolder = _os.path.join('/homea','weir','bin')
-datafolder=_os.path.join('..','..','..')
+datafolder = _os.path.join('D:/','OneDrive - UW-Madison','HJ','Data')
+# datafolder=_os.path.join('..','..','..')
 
 print('Existence check: ' + datafolder)
 if _os.path.exists(datafolder):
@@ -43,130 +46,129 @@ Fs = 1e6
 
 # =============== #
 
-#cohtitl = 'CECE_jan17'
-##titls.extend( [cohtitl + '_fix2'] )
-#titls.extend( [cohtitl + '_fix4'] )
-cohtitl='local_test'
-titls.extend([cohtitl+ 'Local Stef'])
+# cohtitl = 'CECE_jan17'
+# titls.extend( [cohtitl + '_fix2'] )
+# #titls.extend( [cohtitl + '_fix4'] )
+# # cohtitl='local_test'
+# # titls.extend([cohtitl+ 'Local Stef'])
 
-#clrs = ['b', 'g']
-#nb = [0.150, 0.174]
-##tb = [0.192, 0.370]
-#tb = [0.230, 0.370]
-#
-#f_hpf = 10e3
-#Nw = _np.int((tb[1]-tb[0]) * _np.max((f_hpf,1e3)))
-#Nwb = _np.int((nb[1]-nb[0]) * f_hpf)
-##Nw = 3000
-##Nw = 2000
-##Nw = 1000
-##Nw = 15000
-##Nw = 250
-#
-#intb = [f_hpf, 400e3]
-##intb = [15e3, 400e3]  # original
-##intb = [15e3, 500e3]  # original
-##intb = [50e3, 400e3]  # broadband fluctuations
-### intb = [400e3, 465e3]  # high frequency mode
-##intb = [410e3, 450e3]  # high frequency mode
+# clrs = ['b', 'g']
+# nb = [0.150, 0.174]
+# #tb = [0.192, 0.370]
+# tb = [0.230, 0.370]
+
+# f_hpf = 10e3
+# Nw = _np.int((tb[1]-tb[0]) * _np.max((f_hpf,1e3)))
+# Nwb = _np.int((nb[1]-nb[0]) * f_hpf)
+
+# intb = [f_hpf, 400e3]
+# #intb = [15e3, 400e3]  # original
+# #intb = [15e3, 500e3]  # original
+# #intb = [50e3, 400e3]  # broadband fluctuations
+# ## intb = [400e3, 465e3]  # high frequency mode
+# #intb = [410e3, 450e3]  # high frequency mode
+
+# overlap = 0.50  # 0% overlap
+# intbg = [410e3, 450e3]  # high frequency mode
 
 # ================ #
 
-#cohtitl = 'CECE_jan17'
-#titls.extend( [cohtitl + '_fix1'] )
-#titls.extend( [cohtitl + '_fix3'] )
-#clrs = ['b', 'g', 'm', 'r', 'k']
-#nb = [0.150, 0.175]
-#tb = [0.200, 0.370]
-#
-#f_hpf = 10e3
-##Nw = _np.int((tb[1]-tb[0]) * _np.max((f_hpf,10e3)))
-#Nw = 1000
-##Nwb = _np.int((nb[1]-nb[0]) * f_hpf)
-##intb = [1e3, 20e3]  # low frequency fluctuations
-##intb = [10e3, 400e3] # big peak
-#intb = [25e3, 400e3] # big peak
+# cohtitl = 'CECE_jan17'
+# titls.extend( [cohtitl + '_fix1'] )
+# titls.extend( [cohtitl + '_fix3'] )
+# clrs = ['b', 'g', 'm', 'r', 'k']
+# nb = [0.150, 0.175]
+# tb = [0.200, 0.370]
+
+# f_hpf = 10e3
+# #Nw = _np.int((tb[1]-tb[0]) * _np.max((f_hpf,10e3)))
+# Nw = 1000
+# #Nwb = _np.int((nb[1]-nb[0]) * f_hpf)
+# #intb = [1e3, 20e3]  # low frequency fluctuations
+# #intb = [10e3, 400e3] # big peak
+# intb = [25e3, 400e3] # big peak
+
+# overlap = 0.50  # 0% overlap
+# intbg = [410e3, 450e3]  # high frequency mode
 
 # ================ #
 
-#cohtitl = 'CECE_jan27'
-#titls.extend( [cohtitl + '_fix1'] )
-#titls.extend( [cohtitl + '_fix2'] )
-#titls.extend( [cohtitl + '_fix3'] )
-#titls.extend( [cohtitl + '_fix4'] )
-#clrs = ['b', 'g', 'm', 'r']
-#nb = [0.150, 0.170]
-##tb = [0.260, 0.310]
-##tb = [0.240, 0.340]   # some RF signal saturation after 310 on select shots
-#tb = [0.220, 0.310]  # pretty safe bounds,  a little higher fluct. at start
-#
-#f_hpf = 360
-#Nw = _np.int((tb[1]-tb[0]) * _np.max((f_hpf,10e3)))
-#Nw = 750
-#Nw = Nw; overlap = 0.50  # 0% overlap
-##Nw = 2*Nw-1; overlap = 0.50  # 50% overlap
-###Nw = 3*Nw; overlap = 0.75    # 75% overlap
-##Nwb = _np.int((nb[1]-nb[0]) * f_hpf)
-## #intb = [1e3, 40e3]  # low frequency fluctuations
-##intb = [1e3, 15e3]  # low frequency fluctuations
-#intb = [40e3, 110e3] # big peak
-##intb = [210e3, 220e3]  # original
-###intb = [60e3, 100e3]  # original
-###intb = [410e3, 450e3]  # high frequency mode
-##intb = [220e3, 450e3]  # noise
-#intbg = [300e3,500e3]
+# cohtitl = 'CECE_jan27'
+# titls.extend( [cohtitl + '_fix1'] )
+# titls.extend( [cohtitl + '_fix2'] )
+# titls.extend( [cohtitl + '_fix3'] )
+# titls.extend( [cohtitl + '_fix4'] )
+# clrs = ['b', 'g', 'm', 'r']
+# nb = [0.150, 0.170]
+# #tb = [0.260, 0.310]
+# #tb = [0.240, 0.340]   # some RF signal saturation after 310 on select shots
+# tb = [0.220, 0.310]  # pretty safe bounds,  a little higher fluct. at start
+
+# f_hpf = 360
+# Nw = _np.int((tb[1]-tb[0]) * _np.max((f_hpf,10e3)))
+# # Nw = 750
+# # Nw = Nw;
+# #Nw = 2*Nw-1; overlap = 0.50  # 50% overlap
+# ##Nw = 3*Nw; overlap = 0.75    # 75% overlap
+# #Nwb = _np.int((nb[1]-nb[0]) * f_hpf)
+# # #intb = [1e3, 40e3]  # low frequency fluctuations
+# #intb = [1e3, 15e3]  # low frequency fluctuations
+# intb = [40e3, 110e3] # big peak
+# #intb = [210e3, 220e3]  # original
+# ##intb = [60e3, 100e3]  # original
+# ##intb = [410e3, 450e3]  # high frequency mode
+# #intb = [220e3, 450e3]  # noise
+# intbg = [300e3,500e3]
+
+# overlap = 0.50  # 0% overlap
 
 # =============== #
 #
-#cohtitl = 'CECE_oct302015'
-#titls.extend( [cohtitl + '_fix1'] )
-#titls.extend( [cohtitl + '_fix2'] )
+# cohtitl = 'CECE_oct302015'
+# titls.extend( [cohtitl + '_fix1'] )
+# titls.extend( [cohtitl + '_fix2'] )
 
+# clrs = ['b', 'g', 'm', 'r']
+# nb = [0.150, 0.180]
+# tb = [0.240, 0.315]
 
+# f_hpf = 360
+# Nw = _np.int((tb[1]-tb[0]) * _np.max((f_hpf,10e3)))
+# Nwb = _np.int((nb[1]-nb[0]) * f_hpf)
+# overlap = 0.50  # 0% overlap
+# intb = [_np.max((f_hpf,1e3)), 200e3] # big peak
+# intbg = [250e3,500e3]
+
+# =============== #
+#
+cohtitl = 'CECE_feb072018'
+#titls.extend( [cohtitl + '_fix1a'] )
+#titls.extend( [cohtitl + '_fix1b'] )
+titls.extend( [cohtitl + '_fix2a'] )   # including freq scans
+titls.extend( [cohtitl + '_fix2b'] )   # including freq scans
+# titls.extend( [cohtitl + '_fixed2a'] )   # no freq scans
+# titls.extend( [cohtitl + '_fixed2b'] )   # no freq scans
 clrs = ['b', 'g', 'm', 'r']
-nb = [0.150, 0.180]
-tb = [0.240, 0.315]
+nb = [0.150, 0.170]
+#tb = [0.250, 0.350]
+#tb = [0.220, 0.310]
+#tb = [0.290, 0.315]
+tb = [0.285, 0.315]
 
 f_hpf = 360
 Nw = _np.int((tb[1]-tb[0]) * _np.max((f_hpf,10e3)))
-Nw = 8
-#Nw = 750
+Nw = 750
 Nw = Nw; overlap = 0.50  # 0% overlap
 #Nw = 2*Nw-1; overlap = 0.50  # 50% overlap
 #Nw = 3*Nw; overlap = 0.75    # 75% overlap
+#Nwb = _np.int((nb[1]-nb[0]) * f_hpf)
+#intb = [1e3, 20e3]  # low frequency fluctuations
+#intb = [_np.max((f_hpf,10e3)), 250e3] # big peak
+#intbg = [250e3,500e3]
 intb = [_np.max((f_hpf,1e3)), 300e3] # big peak
+#intbg = [300e3,500e3]
 intbg = [400e3,500e3]
 
-# =============== #
-##
-#cohtitl = 'CECE_feb072018'
-##titls.extend( [cohtitl + '_fix1a'] )
-##titls.extend( [cohtitl + '_fix1b'] )
-##titls.extend( [cohtitl + '_fix2a'] )   # including freq scans
-##titls.extend( [cohtitl + '_fix2b'] )   # including freq scans
-#titls.extend( [cohtitl + '_fixed2a'] )   # no freq scans
-#titls.extend( [cohtitl + '_fixed2b'] )   # no freq scans
-#clrs = ['b', 'g', 'm', 'r']
-#nb = [0.150, 0.170]
-##tb = [0.250, 0.350]
-##tb = [0.220, 0.310]
-##tb = [0.290, 0.315]
-#tb = [0.285, 0.315]
-#
-#f_hpf = 360
-#Nw = _np.int((tb[1]-tb[0]) * _np.max((f_hpf,10e3)))
-#Nw = 750
-#Nw = Nw; overlap = 0.50  # 0% overlap
-##Nw = 2*Nw-1; overlap = 0.50  # 50% overlap
-##Nw = 3*Nw; overlap = 0.75    # 75% overlap
-##Nwb = _np.int((nb[1]-nb[0]) * f_hpf)
-##intb = [1e3, 20e3]  # low frequency fluctuations
-##intb = [_np.max((f_hpf,10e3)), 250e3] # big peak
-##intbg = [250e3,500e3]
-#intb = [_np.max((f_hpf,1e3)), 300e3] # big peak
-##intbg = [300e3,500e3]
-#intbg = [400e3,500e3]
-#
 # =============== #
 
 fluctbw = 0.3e6
@@ -180,7 +182,7 @@ Bvid = min(fluctbw, Bvid)  # minimum of fluctuation bandwidth and hardware
 
 ylimsC = [-0.05, 1e-20]
 ylimsP = [0.0, 1e-20]
-f0 = True
+f0 = False
 # ===== #
 if f0:
     #  Make a band rejection / Notch filter for MHD or electronic noise
@@ -214,7 +216,7 @@ if f0:
     ax[1].grid()
     _plt.show()
 
-fLPF=True
+fLPF=False
 if fLPF:
     fLPF = 0.5*intb[1]      # [Hz], frequency to reject #was 2 but this did not work
     Bvid = fLPF
@@ -326,9 +328,9 @@ for scantitl in titls:
         fils = ['CECE.69769','CECE.69770','CECE.69771','CECE.69772','CECE.69773','CECE.69777']
         freqs = [13.075,     13.075,      13.085,      13.095,      13.105,      13.08]
         freqs = [4.0*freqq+8.0 for freqq in freqs]
-        
+
         txtstr = ''
-    
+
     if scantitl == 'CECE_jan17_fix1':     # almost all w/in BW of channels
         fils = ['CECE.65624','CECE.65625']
         freqs = [68.3,       68.3]
@@ -564,6 +566,7 @@ for scantitl in titls:
 #        IRfft = _fft.fftanal(tt, tmpRF, tmpIF, tbounds=tb, Navr=3*Nw, windowoverlap=0.75)
 #        IRfft = _fft.fftanal(tt, tmpRF, tmpIF, tbounds=tb, Navr=Nw, windowoverlap=overlap)
         IRfft = _fft.fftanal(tt, tmpRF-tmpRF.mean(), tmpIF-tmpIF.mean(), tbounds=tb, Navr=Nw, windowoverlap=overlap)
+        IRfft.fftpwelch()
 
         if ii == 0:
 #            Nxy_avg = _np.zeros((len(NRfft.freq),), dtype=_np.complex64); Nxy_var = _np.zeros_like(Nxy_avg)
@@ -820,10 +823,11 @@ for scantitl in titls:
 #    _hfig.tight_layout()
 
     scantitl += '_%ito%iKHz'%(int(1e-3*intb[0]), int(1e-3*intb[1]))
-    _pltut.savefig(_os.path.join(datafolder,scantitl), ext='png', close=False,
-            verbose=True, dotsperinch = 300, transparency = True)
-    _pltut.savefig(_os.path.join(datafolder,scantitl), ext='eps', close=False,
-            verbose=True, dotsperinch = 300, transparency = True)
+    if not DEBUG:
+        _pltut.savefig(_os.path.join(datafolder,scantitl), ext='png', close=False,
+                verbose=True, dotsperinch = 300, transparency = True)
+        _pltut.savefig(_os.path.join(datafolder,scantitl), ext='eps', close=False,
+                verbose=True, dotsperinch = 300, transparency = True)
 
     # ================== #
     scantitl += '_Cxy'
@@ -844,10 +848,11 @@ for scantitl in titls:
               'Te fluctuation level ~ %3.2f'%(100*_np.max(Te),), fontsize=12)
     _aCxyRFb.plot(freqs, phxy, 'rx')
 
-    _pltut.savefig(_os.path.join(datafolder,scantitl), ext='png', close=False,
-            verbose=True, dotsperinch = 300, transparency = True)
-    _pltut.savefig(_os.path.join(datafolder,scantitl), ext='eps', close=False,
-            verbose=True, dotsperinch = 300, transparency = True)
+    if not DEBUG:
+        _pltut.savefig(_os.path.join(datafolder,scantitl), ext='png', close=False,
+                verbose=True, dotsperinch = 300, transparency = True)
+        _pltut.savefig(_os.path.join(datafolder,scantitl), ext='eps', close=False,
+                verbose=True, dotsperinch = 300, transparency = True)
 
     # ================ #
 
@@ -894,53 +899,54 @@ for scantitl in titls:
 
 print('Done with loop over lists')
 
-_plt.figure('RawData')
-_plt.sca(_a211)
-_pltut.savefig(_os.path.join(datafolder, cohtitl+'_rawsig'), ext='png', close=False,
-        verbose=True, dotsperinch = 300, transparency = True)
-_pltut.savefig(_os.path.join(datafolder, cohtitl+'_rawsig'), ext='eps', close=False,
-        verbose=True, dotsperinch = 300, transparency = True)
+if not DEBUG:
+    _plt.figure('RawData')
+    _plt.sca(_a211)
+    _pltut.savefig(_os.path.join(datafolder, cohtitl+'_rawsig'), ext='png', close=False,
+            verbose=True, dotsperinch = 300, transparency = True)
+    _pltut.savefig(_os.path.join(datafolder, cohtitl+'_rawsig'), ext='eps', close=False,
+            verbose=True, dotsperinch = 300, transparency = True)
 
 
-#_plt.figure('Coherence Length')
-#_plt.sca(_aCxy)
-##_aCxy.text(0.6*_np.abs(freqs-68.0)*cmPerGHz, 0.95*_np.mean(_np.log(Cxy)),
-##          '%i to %i KHz'%(int(1e-3*freq[i0]),int(1e-3*freq[i1])), fontsize=12)
-##_aCxy.text(0.6*_np.abs(freqs-68.0)*cmPerGHz, 1.15*_np.mean(_np.log(Cxy)),
-##          'Te fluctuation level ~ %3.2f'%(100*Tefluct,), fontsize=12)
-#
-#cohtitl += '_%ito%iKHz'%(int(1e-3*intb[0]), int(1e-3*intb[1]))
-#_pltut.savefig(_os.path.join(datafolder, cohtitl), ext='png', close=False,
-#        verbose=True, dotsperinch = 300, transparency = True)
-#_pltut.savefig(_os.path.join(datafolder, cohtitl), ext='eps', close=False,
-#        verbose=True, dotsperinch = 300, transparency = True)
+    #_plt.figure('Coherence Length')
+    #_plt.sca(_aCxy)
+    ##_aCxy.text(0.6*_np.abs(freqs-68.0)*cmPerGHz, 0.95*_np.mean(_np.log(Cxy)),
+    ##          '%i to %i KHz'%(int(1e-3*freq[i0]),int(1e-3*freq[i1])), fontsize=12)
+    ##_aCxy.text(0.6*_np.abs(freqs-68.0)*cmPerGHz, 1.15*_np.mean(_np.log(Cxy)),
+    ##          'Te fluctuation level ~ %3.2f'%(100*Tefluct,), fontsize=12)
+    #
+    #cohtitl += '_%ito%iKHz'%(int(1e-3*intb[0]), int(1e-3*intb[1]))
+    #_pltut.savefig(_os.path.join(datafolder, cohtitl), ext='png', close=False,
+    #        verbose=True, dotsperinch = 300, transparency = True)
+    #_pltut.savefig(_os.path.join(datafolder, cohtitl), ext='eps', close=False,
+    #        verbose=True, dotsperinch = 300, transparency = True)
 
-# ========== #
+    # ========== #
 
-_plt.figure('Mean Spectra')
-msub1.axvline(x=1e-3*freq[i0], linewidth=2, color='k')
-msub1.axvline(x=1e-3*freq[i1], linewidth=2, color='k')
-msub2.axvline(x=1e-3*freq[i0], linewidth=2, color='k')
-msub2.axvline(x=1e-3*freq[i1], linewidth=2, color='k')
-msub3.axvline(x=1e-3*freq[i0], linewidth=2, color='k')
-msub3.axvline(x=1e-3*freq[i1], linewidth=2, color='k')
+    _plt.figure('Mean Spectra')
+    msub1.axvline(x=1e-3*freq[i0], linewidth=2, color='k')
+    msub1.axvline(x=1e-3*freq[i1], linewidth=2, color='k')
+    msub2.axvline(x=1e-3*freq[i0], linewidth=2, color='k')
+    msub2.axvline(x=1e-3*freq[i1], linewidth=2, color='k')
+    msub3.axvline(x=1e-3*freq[i0], linewidth=2, color='k')
+    msub3.axvline(x=1e-3*freq[i1], linewidth=2, color='k')
 
-cohtitl += 'ensemble_spectra'
-_pltut.savefig(_os.path.join(datafolder, cohtitl), ext='png', close=False,
-        verbose=True, dotsperinch = 300, transparency = True)
-_pltut.savefig(_os.path.join(datafolder, cohtitl), ext='eps', close=False,
-        verbose=True, dotsperinch = 300, transparency = True)
+    cohtitl += 'ensemble_spectra'
+    _pltut.savefig(_os.path.join(datafolder, cohtitl), ext='png', close=False,
+            verbose=True, dotsperinch = 300, transparency = True)
+    _pltut.savefig(_os.path.join(datafolder, cohtitl), ext='eps', close=False,
+            verbose=True, dotsperinch = 300, transparency = True)
 
-# ========== #
+    # ========== #
 
-_plt.figure('Cross Correlation')
-_plt.sca(_aCorr)
+    _plt.figure('Cross Correlation')
+    _plt.sca(_aCorr)
 
-cohtitl += '_xcorr'
-_pltut.savefig(_os.path.join(datafolder, cohtitl), ext='png', close=False,
-        verbose=True, dotsperinch = 300, transparency = True)
-_pltut.savefig(_os.path.join(datafolder, cohtitl), ext='eps', close=False,
-        verbose=True, dotsperinch = 300, transparency = True)
+    cohtitl += '_xcorr'
+    _pltut.savefig(_os.path.join(datafolder, cohtitl), ext='png', close=False,
+            verbose=True, dotsperinch = 300, transparency = True)
+    _pltut.savefig(_os.path.join(datafolder, cohtitl), ext='eps', close=False,
+            verbose=True, dotsperinch = 300, transparency = True)
 
 print('All finished')
 
